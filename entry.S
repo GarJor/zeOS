@@ -66,8 +66,17 @@
   popl %ds; \
   popl %es; \
   popl %fs; \
-  popl %gs; 
+  popl %gs 
 
 #define EOI \
 	movb $0x20, %al; \
 	outb %al, $0x20 ;
+
+ENTRY(keyboard_handler)
+	SAVE_ALL;
+	EOI;
+	call 
+	RESTORE_ALL;
+	iret;	
+	
+	
