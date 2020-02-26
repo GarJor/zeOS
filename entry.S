@@ -51,3 +51,20 @@
       movl %edx, %ds;           \
       movl %edx, %es
 
+
+#define RESTORE_ALL
+	movl %es %edx
+	movl %ds, %edx	\
+	movl %edx, $__KERNEL_DS;    \
+	popl %ebx; \
+	popl %ecx; \
+  popl %edx; \
+  popl %esi; \
+  popl %edi; \
+  popl %ebp; \
+  popl %eax; \
+  popl %ds; \
+  popl %es; \
+  popl %fs; \
+  popl %gs; \
+
