@@ -56,7 +56,7 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
   /* ********************                                                */
   /* flags = x xx 0x111 000 ?????                                        */
   /*         |  |  |                                                     */
-  /*         |  |   \ D = Size of gate: 1 = 32 bits; 0 = 16 bits         */
+  /*         |  | \0  \ D = Size of gate: 1 = 32 bits; 0 = 16 bits         */
   /*         |   \ DPL = Num. higher PL from which it is accessible      */
   /*          \ P = Segment Present bit                                  */
   /***********************************************************************/
@@ -87,3 +87,20 @@ void setIdt()
   set_idt_reg(&idtR);
 }
 
+void keyboard_routine()
+{
+	unsigned char value = intb(0x60);
+	if ( value & 0x80 ) // make
+	{
+		unsigned char code = value & 0x7f;
+		if( code > sizeof(char_map) ) printc_xy(0,0,'C');
+		else 
+		{
+			char key = char_map[code];
+			if( key != '\0' ) printc_xy(0,0,key);	
+			else printc_xy(0,0,'C');
+		}
+	}
+
+	
+}
