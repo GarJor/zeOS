@@ -45,3 +45,16 @@ int sys_fork()
 void sys_exit()
 {  
 }
+
+
+int sys_write(int fd, char * buffer, int size)
+{
+  
+  // Check user
+  int ret = check_fd(fd, ESCRIPTURA);
+  if(ret > 0) return ret;
+ 
+  if(buffer == NULL) return -14; // EFAULT - buf is outside your accessible address space
+  if(size < 0 || size > sizeof(buffer)) return -33; // ERANGE - Numerical result out of range
+  return sys_write_console(buffer, size);
+}
