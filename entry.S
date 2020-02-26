@@ -52,9 +52,9 @@
       movl %edx, %es
 
 
-#define RESTORE_ALL
-	movl %es %edx
-	movl %ds, %edx	\
+#define RESTORE_ALL \
+	movl %es %edx; \
+	movl %ds, %edx;	\
 	movl %edx, $__KERNEL_DS;    \
 	popl %ebx; \
 	popl %ecx; \
@@ -66,5 +66,8 @@
   popl %ds; \
   popl %es; \
   popl %fs; \
-  popl %gs; \
+  popl %gs; 
 
+#define EOI \
+	movb $0x20, %al; \
+	outb %al, $0x20 ;
