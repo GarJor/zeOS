@@ -89,7 +89,7 @@ void setIdt()
 
 void keyboard_routine()
 {
-	unsigned char value = intb(0x60);
+	unsigned char value = inb(0x60);
 	if ( value & 0x80 ) // make
 	{
 		unsigned char code = value & 0x7f;
