@@ -101,7 +101,7 @@ int __attribute__((__section__(".text.main")))
 
 	
 	setInterruptHandler(33, keyboard_handler, 0);
-	setTrapHandler(0x80, system_call_handler, 0);
+	setTrapHandler(0x80, system_call_handler, 3);
 
   printk("Entering user mode...");
 
