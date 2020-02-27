@@ -55,9 +55,9 @@
 #define RESTORE_ALL \
 	popl %ebx; \
 	popl %ecx; \
-  popl %edx; \
-  popl %esi; \
-  popl %edi; \
+	popl %edx; \
+ 	popl %esi; \
+ 	popl %edi; \
   popl %ebp; \
   popl %eax; \
   popl %ds; \
@@ -76,4 +76,17 @@ ENTRY(keyboard_handler)
 	RESTORE_ALL;
 	iret;	
 	
-	
+ENTRY(system_call_handler)
+	SAVE_ALL
+	cmpl $0, %EAX
+	jl	err
+	cmpl $MAX_SYSCALL, %EAX
+	jg err   
+	call *sys_call_table(, %EAX, 0x04)  
+	jmp fin 
+err:
+	movl $-ENOSYS, %EAX
+fin:
+	movl %EAX, 0x18(%esp)  
+	RESTORE_ALL                      
+	iret	
