@@ -14,7 +14,7 @@
 #include <zeos_mm.h> /* TO BE DELETED WHEN ADDED THE PROCESS MANAGEMENT CODE TO BECOME MULTIPROCESS */
 
 void keyboard_handler(void);
-
+void system_call_handler(void);
 
 int (*usr_main)(void) = (void *) PH_USER_START;
 unsigned int *p_sys_size = (unsigned int *) KERNEL_START;
@@ -99,7 +99,9 @@ int __attribute__((__section__(".text.main")))
   /* Move user code/data now (after the page table initialization) */
   copy_data((void *) KERNEL_START + *p_sys_size, usr_main, *p_usr_size);
 
+	
 	setInterruptHandler(33, keyboard_handler, 0);
+	setTrapHandler(0x80, system_call_handler, 0);
 
   printk("Entering user mode...");
 
