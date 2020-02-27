@@ -13,6 +13,8 @@
 
 #include <sched.h>
 
+#include <libc.h>
+
 #define LECTURA 0
 #define ESCRIPTURA 1
 
@@ -55,6 +57,7 @@ int sys_write(int fd, char * buffer, int size)
   if(ret > 0) return ret;
  
   if(buffer == NULL) return -14; // EFAULT - buf is outside your accessible address space
-  if(size < 0 || size > sizeof(buffer)) return -33; // ERANGE - Numerical result out of range
+
+  if(size < 0) return -33; // ERANGE - Numerical result out of range. No comprovem el tamany del buffer i això pot causar que acabem printant tota la pila sia  l'usuari li ve de guust. Pot ser un problema de seguretat. Com ho fem? Implementem aquí un strlen?
   return sys_write_console(buffer, size);
 }
