@@ -2,6 +2,8 @@
  * libc.c 
  */
 
+#include <errno.h>  //Hi ha les constants dels errors i un map per relacionar cada codi amb el seu missatge d'error.
+
 #include <libc.h>
 
 #include <types.h>
@@ -43,3 +45,8 @@ int strlen(char *a)
   return i;
 }
 
+
+void perror (void) {
+	char * buff = etos[errno - 1]; //no hi ha errno 0. Aquest map esta a errno.h
+	write(1, buff, strlen(buff));
+}

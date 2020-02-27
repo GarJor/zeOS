@@ -11,7 +11,8 @@ int __attribute__ ((__section__(".text.main")))
      /* __asm__ __volatile__ ("mov %0, %%cr3"::"r" (0) ); */
 
 	char *buff = "\nBenvingut al mode d'usuari. Aixo es un write jeje\n";	
-	write(1,buff,51);	
+	write(1,buff,-51);
+	perror();	
     
   while(1) 
   {
