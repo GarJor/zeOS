@@ -76,6 +76,12 @@ void setTrapHandler(int vector, void (*handler)(), int maxAccessibleFromPL)
 }
 
 
+void keyboard_handler(void);
+void clock_handler(void);
+void system_call_handler(void);
+void syscall_handler_sysenter(void);
+void writeMSR(int index_MSR, int value_MSR);
+
 void setIdt()
 {
   /* Program interrups/exception service routines */
@@ -85,6 +91,12 @@ void setIdt()
   set_handlers();
 
   /* ADD INITIALIZATION CODE FOR INTERRUPT VECTOR */
+	writeMSR(0x174, __KERNEL_CS);
+	writeMSR(0x175, INITIAL_ESP);
+	writeMSR(0x176, (int)syscall_handler_sysenter);
+	setInterruptHandler(32,	clock_handler, 0);
+	setInterruptHandler(33, keyboard_handler, 0);
+	setTrapHandler(0x80, system_call_handler, 3);
 
   set_idt_reg(&idtR);
 }

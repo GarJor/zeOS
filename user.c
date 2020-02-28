@@ -16,20 +16,21 @@ int __attribute__ ((__section__(".text.main")))
 		perror();	
   	} 
 
-	buff = "\nI son les\n";
-        if( 0 > write(1,buff,strlen(buff)))
-        {
+	buff = "gettime() retorna:\n";
+  if( 0 > write(1,buff,strlen(buff)))
+  {
                 perror();
-  	}
-	
+  }
 	itoa(gettime(), buff);
 	if( 0 > write(1,buff,strlen(buff)))
-        {
+  {
                 perror();
-  	}
+  }
 
 	
   while(1) 
   {
+
+
   }
 }

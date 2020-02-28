@@ -53,7 +53,6 @@ return:
   movl %eax, errno
   movl $-1, %eax
 no_error_gettime:
-  popl %ebx
   popl %ebp
   ret
 
