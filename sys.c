@@ -60,7 +60,7 @@ int sys_write(int fd, char * buffer, int size)
   int ret = check_fd(fd, ESCRIPTURA);
   if(ret > 0) return ret;
  
-  if(buffer == NULL) return -14; // EFAULT - buf is outside your accessible address space
+  if(buffer == NULL) return -EFAULT; // EFAULT - buf is outside your accessible address space
 
   if(size < 0) return -EDOM; //No comprovem el tamany del buffer i això pot causar que acabem printant tota la pila sia  l'usuari li ve de guust. Pot ser un problema de seguretat. Com ho fem? Implementem aquí un strlen?
   return sys_write_console(buffer, size);
