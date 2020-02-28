@@ -4,7 +4,7 @@
 
 #include <asm.h>
 #include <segment.h>
-
+#include <errno.h> //el nostre header dels errno
 
 /**************************************************/
 /**** Save & Restore ******************************/
@@ -92,8 +92,43 @@ ENTRY(system_call_handler)
 	call *sys_call_table(, %EAX, 0x04)  
 	jmp fin 
 err:
-	movl $38, %EAX //-ENOSYS = 38
+	movl $-ENOSYS, %EAX
 fin:
 	movl %EAX, 0x18(%esp)  
 	RESTORE_ALL                      
 	iret	
+
+ENTRY(syscall_handler_sysenter)
+	push $__USER_DS
+	push %EBP// User stack address
+	pushfl
+	push $__USER_CS
+	push 4(%EBP)        // User return address
+	SAVE_ALL
+	cmpl $0, %EAX
+	jl sysenter_err
+	cmpl $MAX_SYSCALL, %EAX
+	jg sysenter_err
+	call *sys_call_table(, %EAX, 0x04) 
+	jmp sysenter_fin
+sysenter_err:
+	movl $-ENOSYS, %EAX
+sysenter_fin:
+	movl %EAX, 0x18(%ESP)
+	RESTORE_ALL
+	movl (%ESP), %EDX// Return address
+	movl 12(%ESP), %ECX// User stack address
+	sti// Enable interrupts again
+	sysexit
+
+
+ENTRY(writeMSR)
+	pushl %ebp
+	movl %esp, %ebp
+	movl 8(%ebp), %ecx //primer parametre, index
+	movl 12(%ebp), %eax //segon parametre, valor a posar al MSR
+	movl $0, %edx //es la part alta del registre msr que es de 64 bits
+	wrmsr
+	pop %ebp
+	ret
+	

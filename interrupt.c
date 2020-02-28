@@ -12,6 +12,8 @@
 Gate idt[IDT_ENTRIES];
 Register    idtR;
 
+extern int zeos_ticks;
+
 char char_map[] =
 {
   '\0','\0','1','2','3','4','5','6',
@@ -102,13 +104,12 @@ void keyboard_routine()
 		}
 	}
 
+}
 void clock_routine()
 {
 	zeos_show_clock();
+	zeos_ticks++;
 
-}
-
-	
 }
 
 

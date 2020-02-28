@@ -16,6 +16,8 @@ int strlen(char *a);
 
 int getpid();
 
+int gettime(); //Nova crida a sistema gettime.
+
 int fork();
 
 void exit();

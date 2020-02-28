@@ -11,10 +11,24 @@ int __attribute__ ((__section__(".text.main")))
      /* __asm__ __volatile__ ("mov %0, %%cr3"::"r" (0) ); */
 
 	char *buff = "\nBenvingut al mode d'usuari. Aixo es un write jeje\n";	
-	if( 0 > write(1,buff,-51))
+	if( 0 > write(1,buff,strlen(buff)))
 	{
 		perror();	
-  }  
+  	} 
+
+	buff = "\nI son les\n";
+        if( 0 > write(1,buff,strlen(buff)))
+        {
+                perror();
+  	}
+	
+	itoa(gettime(), buff);
+	if( 0 > write(1,buff,strlen(buff)))
+        {
+                perror();
+  	}
+
+	
   while(1) 
   {
   }

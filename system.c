@@ -13,9 +13,13 @@
 #include <utils.h>
 #include <zeos_mm.h> /* TO BE DELETED WHEN ADDED THE PROCESS MANAGEMENT CODE TO BECOME MULTIPROCESS */
 
+int zeos_ticks; //cal posar l'extern perque la tenim declarada fora del fitxer.
+
 void keyboard_handler(void);
 void clock_handler(void);
 void system_call_handler(void);
+void syscall_handler_sysenter(void);
+void writeMSR(int index_MSR, int value_MSR);
 
 int (*usr_main)(void) = (void *) PH_USER_START;
 unsigned int *p_sys_size = (unsigned int *) KERNEL_START;
@@ -64,6 +68,8 @@ int __attribute__((__section__(".text.main")))
   main(void)
 {
 
+	zeos_ticks = 0; //a l'inici de la màquina zeosticks val 0
+
   set_eflags();
 
   /* Define the kernel segment registers  and a stack to execute the 'main' code */
@@ -100,7 +106,10 @@ int __attribute__((__section__(".text.main")))
   /* Move user code/data now (after the page table initialization) */
   copy_data((void *) KERNEL_START + *p_sys_size, usr_main, *p_usr_size);
 
-	
+  
+	writeMSR(0x174, __KERNEL_CS);
+	writeMSR(0x175, INITIAL_ESP);
+	writeMSR(0x176, (int)syscall_handler_sysenter);
 	setInterruptHandler(32,	clock_handler, 0);
 	setInterruptHandler(33, keyboard_handler, 0);
 	setTrapHandler(0x80, system_call_handler, 3);
