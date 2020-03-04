@@ -56,14 +56,30 @@ void sys_exit()
 int sys_write(int fd, char * buffer, int size)
 {
   
+	int fd_ret;
   // Check user
-  int ret = check_fd(fd, ESCRIPTURA);
-  if(ret > 0) return ret;
+  if( (fd_ret = check_fd(fd, ESCRIPTURA)) > 0) return fd_ret;
  
   if(buffer == NULL) return -EFAULT; // EFAULT - buf is outside your accessible address space
-
   if(size < 0) return -EDOM; //No comprovem el tamany del buffer i això pot causar que acabem printant tota la pila sia  l'usuari li ve de guust. Pot ser un problema de seguretat. Com ho fem? Implementem aquí un strlen?
-  return sys_write_console(buffer, size);
+	int chunk_size = 500;
+	char dest[chunk_size];
+	int i, ret;
+	int limit = size/chunk_size;
+	int total = 0;
+	for(i = 0; i < limit; i+=chunk_size)
+	{
+		copy_from_user(&buffer[i] ,dest, chunk_size);
+		if((ret = sys_write_console(dest, chunk_size )) > 0 ) total += ret;
+		else return ret;
+	}
+	
+		copy_from_user(&buffer[i] ,dest, size%chunk_size);
+		if((ret = sys_write_console(dest, size%chunk_size )) > 0 ) total += ret;
+		else return ret;
+		
+	
+  return total;
 }
 
 int sys_gettime(){
