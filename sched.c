@@ -62,6 +62,8 @@ void init_idle (void)
 	list_del(task_head); //l'eliminem de la llista de free pq ja no esta free
 	task_struct *idle_pcb = list_head_to_task_struct(task_head);
 	idle_pcb->PID=0;	
+	allocateDIR(idle_pcb); //assignem directori de pagines
+	
 }
 
 void init_task1(void)
