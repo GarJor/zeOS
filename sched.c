@@ -9,7 +9,7 @@
 union task_union task[NR_TASKS]
   __attribute__((__section__(".data.task")));
 
-#if 0
+#if 1  //Hem descomentat això
 struct task_struct *list_head_to_task_struct(struct list_head *l)
 {
   return list_entry( l, struct task_struct, list);
@@ -58,7 +58,10 @@ void cpu_idle(void)
 
 void init_idle (void)
 {
-
+	list_head *task_head = list_first (&free);  //prenem l'element de la llista de fre
+	list_del(task_head); //l'eliminem de la llista de free pq ja no esta free
+	task_struct *idle_pcb = list_head_to_task_struct(task_head);
+	idle_pcb->PID=0;	
 }
 
 void init_task1(void)
