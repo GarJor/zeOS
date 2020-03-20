@@ -58,7 +58,7 @@ void cpu_idle(void)
 
 void init_idle (void)
 {
-	struct list_head *task_head = list_first (&freequeue);  //prenem l'element de la llista de fre
+	struct list_head *task_head = list_first(&freequeue);  //prenem l'element de la llista de fre
 	list_del(task_head); //l'eliminem de la llista de free pq ja no esta free
 	struct task_struct *idle_pcb = list_head_to_task_struct(task_head);
 	idle_pcb->PID=0;	
