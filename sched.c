@@ -20,7 +20,7 @@ extern struct list_head blocked;
 
 
 struct list_head freequeue, readyqueue;
-
+struct task_struct * idle_task;
 
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t) 
@@ -58,11 +58,17 @@ void cpu_idle(void)
 
 void init_idle (void)
 {
-	list_head *task_head = list_first (&free);  //prenem l'element de la llista de fre
+	struct list_head *task_head = list_first (&freequeue);  //prenem l'element de la llista de fre
 	list_del(task_head); //l'eliminem de la llista de free pq ja no esta free
-	task_struct *idle_pcb = list_head_to_task_struct(task_head);
+	struct task_struct *idle_pcb = list_head_to_task_struct(task_head);
 	idle_pcb->PID=0;	
-	allocateDIR(idle_pcb); //assignem directori de pagines
+	union task_union* utask = (union task_union *) idle_pcb; //agafem el task_union corresponent al PCB del idle
+	utask->stack[KERNEL_STACK_SIZE - 1] = (unsigned long) cpu_idle; //empilem la adressa de retorn
+	utask->stack[KERNEL_STACK_SIZE - 2] = (unsigned long) 0;// empilem el fals ebp
+	utask->task.kernel_esp = &(utask->stack[KERNEL_STACK_SIZE - 2]);	
+	 
+	allocate_DIR(idle_pcb); //assignem directori de pagines
+	idle_task = idle_pcb;
 	
 }
 
