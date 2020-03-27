@@ -21,6 +21,7 @@ extern struct list_head blocked;
 
 struct list_head freequeue, readyqueue;
 struct task_struct * idle_task;
+void writeMSR(int index_MSR, int value_MSR);
 
 /* get_DIR - Returns the Page Directory address for task 't' */
 page_table_entry * get_DIR (struct task_struct *t) 
@@ -77,9 +78,17 @@ void init_task1(void)
 	
 	struct list_head *task_head = list_first(&freequeue);  //prenem l'element de la llista de fre
 	list_del(task_head); //l'eliminem de la llista de free pq ja no esta free
+
 	struct task_struct *task1_pcb = list_head_to_task_struct(task_head);
 	task1_pcb->PID=1;	
-	allocate_DIR(task1_pcb);
+
+	allocate_DIR(task1_pcb); // assignem directori al proces
+	set_user_pages(task1_pcb); // assignem l'espai d'adresses del proces
+	
+	tss.esp0 = KERNEL_ESP((union task_union *)task1_pcb);	
+	task1_pcb->kernel_esp = (unsigned long *) KERNEL_ESP((union task_union *)task1_pcb);	
+	writeMSR(0x175, KERNEL_ESP((union task_union *)task1_pcb));
+	set_cr3(task1_pcb->dir_pages_baseAddr);
 
 }
 
