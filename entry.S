@@ -131,4 +131,18 @@ ENTRY(writeMSR)
 	wrmsr
 	pop %ebp
 	ret
-	
+
+ENTRY(task_switch)
+	pushl %epb
+	movl %esp, %ebp
+	pushl %esi
+	pushl %edi
+	pushl %ebx
+	pushl 8(%ebp)
+	call inner_task_switch
+	popl %ebx
+	addl $4, %esp
+	popl %edi
+	popl %esi
+	popl %ebp
+	ret
