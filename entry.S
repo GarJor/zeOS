@@ -133,16 +133,72 @@ ENTRY(writeMSR)
 	ret
 
 ENTRY(task_switch)
-	pushl %epb
+	pushl %ebp
 	movl %esp, %ebp
 	pushl %esi
 	pushl %edi
 	pushl %ebx
 	pushl 8(%ebp)
 	call inner_task_switch
-	popl %ebx
 	addl $4, %esp
+	popl %ebx
 	popl %edi
 	popl %esi
 	popl %ebp
 	ret
+
+
+ENTRY(inner_task_switch)
+	pushl %ebp
+	movl %esp, %ebp
+	movl $tss, %eax // adressa de la tss
+
+	//movl $KERNEL_STACK_SIZE, %ecx
+	movl $1024, %ecx
+	movl 8(%ebp), %edx		// ebx = &t
+	movl (%ebx,%ecx,4), %ecx // ecx = &t->stack[KERNEL_STACK_SIZE]
+
+	movl %ecx, 4(%eax)	// tss.esp0 = &t->stack[KERNEL_STACK_SIZE]
+
+	push $0x175
+	push %ecx
+	call writeMSR // writeMSR(0x175, &t->stack[KERNEL_STACK_SIZE])
+	addl $8, %esp
+
+
+	movl 8(%ebp), %edx		// edx = &t
+	pushl 4(%ebx)	
+	call set_cr3  //set_cr3(&t -> task.dir_pages_baseAddr)
+	addl $4, %esp
+
+	call current
+	movl %ebp, 0x10(%eax) // current() -> kernel_esp = %ebp
+	
+	movl 8(%ebp), %edx		// edx = &t
+	movl 0x10(%edx), %esp // esp = &t -> kernel_esp
+	
+
+	popl %ebp
+	ret
+	
+	
+
+
+
+
+	
+
+
+
+
+	
+	
+	
+	
+	
+
+
+
+
+
+
