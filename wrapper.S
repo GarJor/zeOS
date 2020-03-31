@@ -56,3 +56,35 @@ no_error_gettime:
   popl %ebp
   ret
 
+ENTRY(getpid)
+	pushl %ebp
+	movl %esp, %ebp
+	//identificador de la syscall
+	movl $20, %eax
+	//empilar registres pel retorn (aquests cal guardarlos quan es fa un sysenter)
+	pushl %ecx
+	pushl %edx
+	//guardem la etiqueta de retorn
+	push $return_getpid
+	//nou enllacç dinamic
+	pushl %ebp
+	movl %esp, %ebp
+	sysenter
+return_getpid:
+	//restaurem enllaç dinamic
+	popl %ebp
+	//elimino l'adreça de retorn
+	addl $4, %esp
+	//restauro registres
+	popl %edx
+	popl %ecx
+	//comporovo que no hi hagi errors
+	cmpl $0, %eax
+	jge no_error_getpid //salto a la resta de la rutina
+	//tracto l'error
+	negl %eax
+	movl %eax, errno
+	movl $-1, %eax
+no_error_getpid:    //he d'execurtar sempre aixo en quaslevol cas per sortir de la rutina.  
+	popl %ebp
+	ret

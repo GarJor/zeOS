@@ -31,7 +31,17 @@ int __attribute__ ((__section__(".text.main")))
   {
                 perror();
   }
-		
+	buff = "Soc el PID:\n";
+  if( 0 > write(1,buff,strlen(buff)))
+  {
+                perror();
+  }
+	itoa(getpid(), buff);
+	if( 0 > write(1,buff,strlen(buff)))
+  {
+                perror();
+  }
+	
   while(1) 
   {
 
