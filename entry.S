@@ -156,7 +156,7 @@ ENTRY(inner_task_switch)
 	//movl $KERNEL_STACK_SIZE, %ecx
 	movl $1024, %ecx
 	movl 8(%ebp), %edx		// ebx = &t
-	movl (%ebx,%ecx,4), %ecx // ecx = &t->stack[KERNEL_STACK_SIZE]
+	movl (%edx,%ecx,4), %ecx // ecx = &t->stack[KERNEL_STACK_SIZE]
 
 	movl %ecx, 4(%eax)	// tss.esp0 = &t->stack[KERNEL_STACK_SIZE]
 
@@ -167,7 +167,7 @@ ENTRY(inner_task_switch)
 
 
 	movl 8(%ebp), %edx		// edx = &t
-	pushl 4(%ebx)	
+	pushl 4(%edx)	
 	call set_cr3  //set_cr3(&t -> task.dir_pages_baseAddr)
 	addl $4, %esp
 

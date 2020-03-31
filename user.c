@@ -26,7 +26,7 @@ int __attribute__ ((__section__(".text.main")))
   {
                 perror();
   }
-	buff = "/nBon dia, "; //test del taskswitch. Apreta una tecla
+	buff = "\nBon dia, "; //test del taskswitch. Apreta una tecla
   if( 0 > write(1,buff,strlen(buff)))
   {
                 perror();
