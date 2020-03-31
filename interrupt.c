@@ -6,13 +6,15 @@
 #include <segment.h>
 #include <hardware.h>
 #include <io.h>
-
+#include <sched.h>
 #include <zeos_interrupt.h>
 
 Gate idt[IDT_ENTRIES];
 Register    idtR;
 
 extern int zeos_ticks;
+extern struct task_struct* idle_task;
+extern void task_switch(union task_union *new);
 
 char char_map[] =
 {
@@ -115,7 +117,7 @@ void keyboard_routine()
 			else printc_xy(0,0,'C');
 		}
 	}
-
+	task_switch((union task_union *)idle_task);
 }
 void clock_routine()
 {

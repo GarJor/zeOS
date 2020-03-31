@@ -50,7 +50,7 @@ int allocate_DIR(struct task_struct *t)
 void cpu_idle(void)
 {
 	__asm__ __volatile__("sti": : :"memory");
-
+	printk("Ningu ho ha demanat pero fa bon dia"); //test
 	while(1)
 	{
 	;
