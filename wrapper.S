@@ -88,3 +88,37 @@ return_getpid:
 no_error_getpid:    //he d'execurtar sempre aixo en quaslevol cas per sortir de la rutina.  
 	popl %ebp
 	ret
+
+
+ENTRY(fork)
+	pushl %ebp
+	movl %esp, %ebp
+	//syscall ID
+	movl $2, %eax
+	//empilar registres pel retorn (aquests cal guardarlos quan es fa un sysenter)
+	pushl %ecx
+	pushl %edx
+	//guardem la etiqueta de retorn
+	push $return_fork
+	//nou enllacç dinamic
+	pushl %ebp
+	movl %esp, %ebp
+	sysenter
+return_fork:
+	//restaurem enllaç dinamic
+	popl %ebp
+	//elimino l'adreça de retorn
+	addl $4, %esp
+	//restauro registres
+	popl %edx
+	popl %ecx
+	//comporovo que no hi hagi errors
+	cmpl $0, %eax
+	jge no_error_fork //salto a la resta de la rutina
+	//tracto l'error
+	negl %eax
+	movl %eax, errno
+	movl $-1, %eax
+no_error_fork:    //he d'execurtar sempre aixo en quaslevol cas per sortir de la rutina.  
+	popl %ebp
+	ret

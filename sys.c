@@ -17,11 +17,14 @@
 
 #include <libc.h>
 
+
+
 #define LECTURA 0
 #define ESCRIPTURA 1
 
 extern int zeos_ticks;
-
+extern struct list_head  freequeue, readyqueue;
+int nextPID = 2; // COM? i ON?
 int check_fd(int fd, int permissions)
 {
   if (fd!=1) return -9; /*EBADF*/
@@ -39,13 +42,103 @@ int sys_getpid()
 	return current()->PID;
 }
 
+int ret_from_fork()
+{
+	return 0;
+}
+
 int sys_fork()
 {
   int PID=-1;
 
-  // creates the child process
-  
-  return PID;
+  // a) creates the child process
+ 	struct list_head * free_head = list_first( &freequeue );
+	if(free_head == NULL) return -EAGAIN;
+	list_del(free_head);
+	struct task_struct * child_task = list_head_to_task_struct(free_head); 
+	
+	// b) copiem data del pare al fill
+	copy_data(current(), child_task, sizeof(union task_union));
+
+	// c) inicialitzem el directori
+	allocate_DIR(child_task);
+
+	// d) cerquem pagines fisiques per mapejar amb les logiques
+	int frames[NUM_PAG_DATA];
+	int i;
+	for (i=0; i<NUM_PAG_DATA; i++) 
+	{
+		frames[i] = alloc_frame();
+		if(frames[i] < 0) 
+		{ 																								 // En cas d'error:
+			for(int j = 0; j < i; j++) free_frame(frames[j]); // alliberem els frames reservats
+			list_add(&child_task->list, &freequeue);				 // tornem a encuar la tasca al freequeue 			
+			return -ENOMEM;
+		}
+
+	}
+	// e) heredem les dades del pare
+	page_table_entry *parent_PT = get_PT(current());
+	page_table_entry *child_PT = get_PT(child_task);
+
+	//  > i) creacio de l'espai d'adresses del process fill: 
+	
+
+	// 	>> A) compartim codi de sistema i usuari
+	for(i=0; i < NUM_PAG_KERNEL; i++)  // suposem que el codi de sistema esta mapejat a les primeres posicions de la taula de pagines
+	{
+		set_ss_pag(child_PT, i, get_frame(parent_PT, i));
+
+	}
+
+	for(i=0; i < NUM_PAG_CODE; i++) 
+	{
+		set_ss_pag(child_PT, i+PAG_LOG_INIT_CODE, get_frame(parent_PT, i+PAG_LOG_INIT_CODE));
+
+	}
+	
+	// 	>> B) assignem les noves pagines fisiques a les adresses logiques del proces fill 
+	for(i=0; i < NUM_PAG_DATA; i++) 
+	{
+		set_ss_pag(child_PT, i+PAG_LOG_INIT_DATA, frames[i]);
+
+	}
+
+	// > ii) ampliem lespai d'adresses del pare per poder accedir a les pagines del fill per copiar data+stack
+	for(i=0; i < NUM_PAG_DATA; i++) 
+	{
+		unsigned int page = i+PAG_LOG_INIT_DATA;
+		set_ss_pag(parent_PT, page+NUM_PAG_DATA, frames[i]);
+		copy_data( (unsigned long *)(page*PAGE_SIZE), (unsigned long *)((page+NUM_PAG_DATA)*PAGE_SIZE) , PAGE_SIZE);
+		del_ss_pag(parent_PT, page+NUM_PAG_DATA);
+		
+
+	}
+	set_cr3(get_DIR(current())); // flush de la TLB	
+
+
+	// f) assignem nou PID
+	PID = nextPID++;
+	child_task->PID = PID;
+	
+	// g) modifiquem els camps que han de canviar en el proces fill
+
+
+
+	// h) preparem la pila del fill per al task_switch
+	union task_union * child_union = (union task_union *) child_task;
+	
+	((unsigned long *)KERNEL_ESP(child_union))[-0x13] = (unsigned long) 0;
+	((unsigned long *)KERNEL_ESP(child_union))[-0x12] = (unsigned long) ret_from_fork; // 5 registres + SAVE_ALL (11 regs) + @handler -> top de stack a -0x11
+	child_task->kernel_esp = 	&((unsigned long *)KERNEL_ESP(child_union))[-0x13]; 
+
+	// i) empilem a la readyqueue el fill
+	list_add(&child_task->list, &readyqueue);
+
+	// j) retornem el PID del fill
+
+
+	return PID;
 }
 
 void sys_exit()
