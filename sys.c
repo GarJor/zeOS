@@ -85,7 +85,7 @@ int sys_fork()
 	
 
 	// 	>> A) compartim codi de sistema i usuari
-	for(i=0; i < NUM_PAG_KERNEL; i++)  // suposem que el codi de sistema esta mapejat a les primeres posicions de la taula de pagines
+	for(i=1; i < NUM_PAG_KERNEL; i++)  // suposem que el codi de sistema esta mapejat a les primeres posicions de la taula de pagines
 	{
 		set_ss_pag(child_PT, i, get_frame(parent_PT, i));
 
