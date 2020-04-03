@@ -18,7 +18,7 @@ struct task_struct *list_head_to_task_struct(struct list_head *l)
 
 extern struct list_head blocked;
 
-
+int quantum_ticks;
 struct list_head freequeue, readyqueue;
 struct task_struct * idle_task;
 void writeMSR(int index_MSR, int value_MSR);
@@ -80,7 +80,7 @@ void init_task1(void)
 
 	struct task_struct *task1_pcb = list_head_to_task_struct(task_head);
 	task1_pcb->PID=1;	
-
+	set_quantum(task1_pcb,QUANTUM);  //els altres processos l'heredaran
 	allocate_DIR(task1_pcb); // assignem directori al proces
 	set_user_pages(task1_pcb); // assignem l'espai d'adresses del proces
 	
@@ -91,26 +91,59 @@ void init_task1(void)
 
 }
 
-void init_freequeue(void)
+void init_sched()
 {
-
 	INIT_LIST_HEAD( &freequeue );
+	INIT_LIST_HEAD( &readyqueue );
+	quantum_ticks = 0;
 	int i;
 	for(i=0; i<NR_TASKS; i++)
 		list_add( &(task[i].task.list), &freequeue );
+
 }
-void init_readyqueue(void)
+
+
+int get_quantum (struct task_struct *t){
+	return t->quantum;
+}
+
+void set_quantum(struct task_struct *t, int new_quantum){
+	t->quantum = new_quantum;
+}
+
+void update_sched_data_rr (void){
+	--quantum_ticks;
+}
+
+int needs_sched_rr(void){
+	return quantum_ticks <= 0 && !list_empty(&readyqueue); //no hem d'ocupar la CPU amb idle si hi ha un proces que pot usar la CPU. 
+}
+
+void update_process_state_rr (struct task_struct *t, struct list_head *dst_queue)
 {
-	
-	INIT_LIST_HEAD( &readyqueue );
-
+	struct list_head *llista = &t->list; //obtinc el camp llista
+	if (!(llista->prev == NULL && llista->next == NULL)) //Soc a una llista cal que m'esborri d'on soc
+	{	
+		list_del(llista); //m'he esborrat
+	}
+	if (dst_queue)  					//si no ha de ser running l'afegeixo a la llista que em passen (perque si has de ser running ja va be deixarlo lliure)
+		list_add(llista, dst_queue);
 }
 
-void init_sched()
-{
-
+void sched_next_rr(void){
+	struct list_head *list_nou = list_first(&readyqueue);
+	union task_union *nova_taska = (union task_union *) list_head_to_task_struct (list_nou);
+	task_switch(nova_taska); 
 }
 
+void schedule (void){
+	update_sched_data_rr();
+	if (needs_sched_rr()){
+		update_process_state_rr(current(), &readyqueue);   //temps esgotat
+		sched_next_rr();
+		quantum_ticks = current()->quantum; 
+	}
+}
 struct task_struct* current()
 {
   int ret_value;
