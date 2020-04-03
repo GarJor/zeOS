@@ -26,22 +26,48 @@ int __attribute__ ((__section__(".text.main")))
   {
                 perror();
   }
-	buff = "\nBon dia, "; //test del taskswitch. Apreta una tecla
-  if( 0 > write(1,buff,strlen(buff)))
-  {
-                perror();
-  }
-	buff = "Soc el PID:\n";
-  if( 0 > write(1,buff,strlen(buff)))
-  {
-                perror();
-  }
-	itoa(getpid(), buff);
-	if( 0 > write(1,buff,strlen(buff)))
-  {
-                perror();
-  }
-	
+	int p = fork();
+	if(p < 0) 
+	{
+		perror();
+	}
+	if(p == 0)
+	{
+		buff = "\nSoc el fill amb PID:\n";
+	  if( 0 > write(1,buff,strlen(buff)))
+	  {
+	                perror();
+	  }
+		itoa(getpid(), buff);
+		if( 0 > write(1,buff,strlen(buff)))
+	  {
+	                perror();
+	  }
+
+	}	else 
+	{
+
+		buff = "\nSoc el pare, amb PID:\n";
+	  if( 0 > write(1,buff,strlen(buff)))
+	  {
+	                perror();
+	  }
+		itoa(getpid(), buff);
+		if( 0 > write(1,buff,strlen(buff)))
+	  {
+	                perror();
+	  }
+		buff = "\nEl fill ha de tenir PID = ";
+	  if( 0 > write(1,buff,strlen(buff)))
+	  {
+	                perror();
+	  }
+		itoa(p, buff);
+		if( 0 > write(1,buff,strlen(buff)))
+	  {
+	                perror();
+	  }
+	}
   while(1) 
   {
 
