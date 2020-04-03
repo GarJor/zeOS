@@ -15,6 +15,7 @@ Register    idtR;
 extern int zeos_ticks;
 extern struct task_struct* idle_task;
 extern void task_switch(union task_union *new);
+extern struct list_head readyqueue;
 
 char char_map[] =
 {
@@ -116,8 +117,8 @@ void keyboard_routine()
 			if( key != '\0' ) printc_xy(0,0,key);	
 			else printc_xy(0,0,'C');
 		}
+		task_switch((union task_union *)list_head_to_task_struct(list_first(&readyqueue)));
 	}
-	task_switch((union task_union *)idle_task);
 }
 void clock_routine()
 {
