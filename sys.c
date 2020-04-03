@@ -122,7 +122,7 @@ int sys_fork()
 	child_task->PID = PID;
 	
 	// g) modifiquem els camps que han de canviar en el proces fill
-
+	init_stat(child_task);
 
 
 	// h) preparem la pila del fill per al task_switch
@@ -143,6 +143,18 @@ int sys_fork()
 
 void sys_exit()
 {  
+	struct task_struct *task = current();
+	page_table_entry *task_PT = get_PT(task);
+	for(int i =0; i < NUM_PAG_DATA ; ++i)
+	{
+		free_frame(get_frame(task_PT,i+PAG_LOG_INIT_DATA));
+		del_ss_pag(task_PT, i+PAG_LOG_INIT_DATA);
+	}
+	
+	task->PID=-1;
+	update_process_state_rr(task, &freequeue);
+	sched_next_rr();
+	
 }
 
 

@@ -5,6 +5,7 @@
 #include <sched.h>
 #include <mm.h>
 #include <io.h>
+#include <utils.h>
 
 union task_union task[NR_TASKS]
   __attribute__((__section__(".data.task")));
@@ -45,6 +46,19 @@ int allocate_DIR(struct task_struct *t)
 	t->dir_pages_baseAddr = (page_table_entry*) &dir_pages[pos]; 
 
 	return 1;
+}
+
+void init_stat(struct task_struct *t)
+{
+
+	t->estat.user_ticks = 0;
+	t->estat.system_ticks = 0;
+	t->estat.blocked_ticks = 0;
+	t->estat.ready_ticks = 0;
+	t->estat.elapsed_total_ticks = get_ticks();
+	t->estat.total_trans = 0;
+	t->estat.remaining_ticks = t->quantum; // a l'inici del proces 
+
 }
 
 void cpu_idle(void)
@@ -88,6 +102,7 @@ void init_task1(void)
 	task1_pcb->kernel_esp = (unsigned long *) KERNEL_ESP((union task_union *)task1_pcb);	
 	writeMSR(0x175, KERNEL_ESP((union task_union *)task1_pcb));
 	set_cr3(task1_pcb->dir_pages_baseAddr);
+	init_stat(task1_pcb);
 
 }
 
@@ -134,16 +149,50 @@ void sched_next_rr(void){
 	struct list_head *list_nou = list_first(&readyqueue);
 	union task_union *nova_taska = (union task_union *) list_head_to_task_struct (list_nou);
 	task_switch(nova_taska); 
+	quantum_ticks = ((struct task_struct *)nova_taska)->quantum; // nova taska == nou quantum
+	((struct task_struct *)nova_taska)->estat.total_trans++; // passa de ready a run
 }
 
-void schedule (void){
+void schedule (void)
+{
 	update_sched_data_rr();
-	if (needs_sched_rr()){
+	if (needs_sched_rr())
+	{
 		update_process_state_rr(current(), &readyqueue);   //temps esgotat
 		sched_next_rr();
-		quantum_ticks = current()->quantum; 
 	}
 }
+
+void user_to_sys()
+{
+	struct stats *st = &current()->estat;
+  st->user_ticks += get_ticks() - st->elapsed_total_ticks;
+  st->elapsed_total_ticks = get_ticks();
+  st->remaining_ticks = quantum_ticks;
+
+}
+
+void sys_to_user_ready()
+{
+	struct stats *st = &current()->estat;
+  st->system_ticks += get_ticks() - st->elapsed_total_ticks;
+  st->elapsed_total_ticks = get_ticks();
+  st->remaining_ticks = quantum_ticks;
+
+}
+
+
+void ready_to_sys()
+{
+	struct stats *st = &current()->estat;
+  st->ready_ticks += get_ticks() - st->elapsed_total_ticks;
+  st->elapsed_total_ticks = get_ticks();
+  st->remaining_ticks = quantum_ticks;
+// caldria incrementar total_trans?
+
+}
+
+
 struct task_struct* current()
 {
   int ret_value;

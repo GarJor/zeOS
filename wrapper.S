@@ -122,3 +122,28 @@ return_fork:
 no_error_fork:    //he d'execurtar sempre aixo en quaslevol cas per sortir de la rutina.  
 	popl %ebp
 	ret
+
+ENTRY(exit)
+	pushl %ebp
+	movl %esp, %ebp
+	//syscall ID
+	movl $1, %eax
+	//empilar registres pel retorn (aquests cal guardarlos quan es fa un sysenter)
+	pushl %ecx
+	pushl %edx
+	//guardem la etiqueta de retorn
+	push $return_exit
+	//nou enllacç dinamic
+	pushl %ebp
+	movl %esp, %ebp
+	sysenter
+return_exit:
+	//restaurem enllaç dinamic
+	popl %ebp
+	//elimino l'adreça de retorn
+	addl $4, %esp
+	//restauro registres
+	popl %edx
+	popl %ecx
+	popl %ebp
+	ret

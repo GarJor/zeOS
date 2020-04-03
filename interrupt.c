@@ -117,14 +117,13 @@ void keyboard_routine()
 			if( key != '\0' ) printc_xy(0,0,key);	
 			else printc_xy(0,0,'C');
 		}
-		task_switch((union task_union *)list_head_to_task_struct(list_first(&readyqueue)));
 	}
 }
 void clock_routine()
 {
 	zeos_show_clock();
 	zeos_ticks++;
-
+	schedule();
 }
 
 
