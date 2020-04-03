@@ -203,4 +203,12 @@ struct task_struct* current()
   );
   return (struct task_struct*)(ret_value&0xfffff000);
 }
+struct task_struct * get_task(int pid)
+{
+    for(int i = 0; i < NR_TASKS; i++) {
+        struct task_struct *task_struct = &(task[i].task);
+        if (task_struct->PID == pid) return task_struct;
+    }
+    return 0;
+}
 

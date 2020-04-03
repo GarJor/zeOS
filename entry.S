@@ -72,14 +72,18 @@
 ENTRY(keyboard_handler)
 	SAVE_ALL;
 	EOI;
+	call system_to_user
 	call keyboard_routine 
+	call user_to_system
 	RESTORE_ALL;
 	iret;	
 	
 ENTRY(clock_handler)
 	SAVE_ALL;
 	EOI;
+	call system_to_user
 	call clock_routine 
+	call user_to_system
 	RESTORE_ALL;
 	iret;	
 
@@ -89,7 +93,13 @@ ENTRY(system_call_handler)
 	jl	err
 	cmpl $MAX_SYSCALL, %EAX
 	jg err   
-	call *sys_call_table(, %EAX, 0x04)  
+	push %eax
+	call system_to_user
+	pop %eax
+	call *sys_call_table(, %EAX, 0x04) 
+	push %eax
+	call user_to_system
+	pop %eax
 	jmp fin 
 err:
 	movl $-ENOSYS, %EAX
@@ -109,7 +119,13 @@ ENTRY(syscall_handler_sysenter)
 	jl sysenter_err
 	cmpl $MAX_SYSCALL, %EAX
 	jg sysenter_err
+	push %eax
+	call system_to_user
+	pop %eax
 	call *sys_call_table(, %EAX, 0x04) 
+	push %eax
+	call user_to_system
+	pop %eax
 	jmp sysenter_fin
 sysenter_err:
 	movl $-ENOSYS, %EAX
@@ -170,14 +186,14 @@ ENTRY(inner_task_switch)
 	pushl 4(%edx)	
 	call set_cr3  //set_cr3(&t -> task.dir_pages_baseAddr)
 	addl $4, %esp
-
+	call system_to_ready  //poso a la cua el proces
 	call current
 	movl %ebp, 0x10(%eax) // current() -> kernel_esp = %ebp
 	
 	movl 8(%ebp), %edx		// edx = &t
 	movl 0x10(%edx), %esp // esp = &t -> kernel_esp
 	
-
+	call ready_to_system  //tenim dubtes de si això pot anar aquí. No sabem on posar-ho.
 	popl %ebp
 	ret
 	

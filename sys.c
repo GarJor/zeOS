@@ -22,6 +22,8 @@
 #define LECTURA 0
 #define ESCRIPTURA 1
 
+extern void init_stat(struct task_struct *t);
+extern struct task_struct * get_task(int pid);
 extern int zeos_ticks;
 extern struct list_head  freequeue, readyqueue;
 int nextPID = 2; // COM? i ON?
@@ -189,4 +191,17 @@ int sys_write(int fd, char * buffer, int size)
 
 int sys_gettime(){
 	return zeos_ticks;
+
+}
+
+int sys_get_stats(int pid, struct stats *st){
+	if(!access_ok(VERIFY_WRITE, st, sizeof(struct stats))) return -EFAULT;
+    if(pid < 0) return -EINVAL;
+    struct task_struct *task = get_task(pid);
+    if (task != 0) {
+        struct stats * task_st = &(task->estat);
+        copy_to_user(task_st, st, sizeof(struct stats));
+    }
+    return task == 0 ? -ESRCH : 0;
+
 }

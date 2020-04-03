@@ -147,3 +147,42 @@ return_exit:
 	popl %ecx
 	popl %ebp
 	ret
+
+
+ENTRY(get_stats)
+	pushl %ebp
+	movl %esp, %ebp
+	//syscall ID
+	movl $2, %eax
+	//empilar registres pel retorn (aquests cal guardarlos quan es fa un sysenter)
+	pushl %ecx
+	pushl %edx
+//paràmetres
+	movl 8(%ebp), %ebx
+  movl 12(%ebp), %ecx
+	//guardem la etiqueta de retorn
+	push $return_getstats
+	//nou enllacç dinamic
+	pushl %ebp
+	movl %esp, %ebp
+	sysenter
+return_getstats:
+	//restaurem enllaç dinamic
+	popl %ebp
+	//elimino l'adreça de retorn
+	addl $4, %esp
+	//restauro registres
+	popl %edx
+	popl %ecx
+	//comporovo que no hi hagi errors
+	cmpl $0, %eax
+	jge no_error_getstats //salto a la resta de la rutina
+	//tracto l'error
+	negl %eax
+	movl %eax, errno
+	movl $-1, %eax
+no_error_getstats:    //he d'execurtar sempre aixo en quaslevol cas per sortir de la rutina.  
+	popl %ebp
+	ret
+
+
