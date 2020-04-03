@@ -35,13 +35,13 @@ SYSOBJ = \
 	hardware.o \
 	list.o \
 
-LIBZEOS = -L . -l zeos
+LIBZEOS = -L . -l zeos -l auxjp
 
 #add to USROBJ any object files required to complete the user program
 USROBJ = \
 	libc.o \
   wrapper.o\
-	# libjp.a \
+	libjp.a \
 
 all:zeos.bin
 

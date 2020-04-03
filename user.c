@@ -68,6 +68,7 @@ int __attribute__ ((__section__(".text.main")))
 	                perror();
 	  }
 	}
+	runjp();
   while(1) 
   {
 
