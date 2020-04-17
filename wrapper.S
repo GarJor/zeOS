@@ -3,28 +3,41 @@
  */
 
 #include <asm.h>
+#define SYSCALL(syscalln) \
+	leal syscall_ret##syscalln, %eax; \
+	push %eax; \
+	movl $syscalln, %eax; \
+	push %ebp; \
+	movl %esp, %ebp; \
+	sysenter; \
+	syscall_ret##syscalln: pop %ebp; \
+	addl $4, %esp
+
+
+#define CHECK_ERROR(end) \
+	cmpl $0, %eax; \
+	jge  end; \
+	negl %eax; \
+	leal errno, %ebx; \
+	movl %eax, (%ebx); \
+	movl $-1, %eax
+
+
 
 ENTRY(write) //exemple usant int
-	//enllaç dinàmic
-  pushl %ebp
-  movl %esp, %ebp
-  pushl %ebx
-  //paràmetres
+	push %ebp
+	movl %esp, %ebp
+	push %ebx
 	movl 8(%ebp), %ebx
-  movl 12(%ebp), %ecx
-  movl 16(%ebp), %edx
-  movl $4, %eax
-  //crida
-	int $0x80
-  cmpl $0, %eax
-  jge no_error_write
-  negl %eax
-  movl %eax, errno
-  movl $-1, %eax
-no_error_write:
-  popl %ebx
-  popl %ebp
-  ret
+	movl 12(%ebp), %ecx
+	movl 16(%ebp), %edx
+	SYSCALL(4);
+	CHECK_ERROR(write.no_error);
+	write.no_error:
+	pop %ebx
+	pop %ebp
+	ret
+
    
 ENTRY(gettime) //exemple usant systenter
 	pushl %ebp
