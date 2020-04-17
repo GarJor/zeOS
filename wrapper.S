@@ -153,7 +153,7 @@ ENTRY(get_stats)
 	pushl %ebp
 	movl %esp, %ebp
 	//syscall ID
-	movl $2, %eax
+	movl $35, %eax
 	//empilar registres pel retorn (aquests cal guardarlos quan es fa un sysenter)
 	pushl %ecx
 	pushl %edx

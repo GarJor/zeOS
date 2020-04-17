@@ -172,12 +172,12 @@ ENTRY(inner_task_switch)
 	//movl $KERNEL_STACK_SIZE, %ecx
 	movl $1024, %ecx
 	movl 8(%ebp), %edx		// ebx = &t
-	movl (%edx,%ecx,4), %ecx // ecx = &t->stack[KERNEL_STACK_SIZE]
+	leal (%edx,%ecx,4), %ecx // ecx = &t->stack[KERNEL_STACK_SIZE]
 
 	movl %ecx, 4(%eax)	// tss.esp0 = &t->stack[KERNEL_STACK_SIZE]
 
-	push $0x175
 	push %ecx
+	push $0x175
 	call writeMSR // writeMSR(0x175, &t->stack[KERNEL_STACK_SIZE])
 	addl $8, %esp
 
