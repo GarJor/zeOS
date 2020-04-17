@@ -41,7 +41,7 @@ LIBZEOS = -L . -l zeos -l auxjp
 USROBJ = \
 	libc.o \
   wrapper.o\
-	libjp.a \
+	libjp.a 
 
 all:zeos.bin
 
