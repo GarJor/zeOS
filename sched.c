@@ -142,15 +142,16 @@ void update_process_state_rr (struct task_struct *t, struct list_head *dst_queue
 		list_del(llista); //m'he esborrat
 	}
 	if (dst_queue)  					//si no ha de ser running l'afegeixo a la llista que em passen (perque si has de ser running ja va be deixarlo lliure)
-		list_add(llista, dst_queue);
+		list_add_tail(llista, dst_queue);
 }
 
 void sched_next_rr(void){
 	struct list_head *list_nou = list_first(&readyqueue);
+	list_del(list_nou);
 	union task_union *nova_taska = (union task_union *) list_head_to_task_struct (list_nou);
-	task_switch(nova_taska); 
 	quantum_ticks = ((struct task_struct *)nova_taska)->quantum; // nova taska == nou quantum
 	((struct task_struct *)nova_taska)->estat.total_trans++; // passa de ready a run
+	task_switch(nova_taska); 
 }
 
 void schedule (void)
