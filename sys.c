@@ -54,8 +54,8 @@ int sys_fork()
   int PID=-1;
 
   // a) creates the child process
+	if(list_empty( &freequeue )) return -EAGAIN;
  	struct list_head * free_head = list_first( &freequeue );
-	if(free_head == NULL) return -EAGAIN;
 	list_del(free_head);
 	struct task_struct * child_task = list_head_to_task_struct(free_head); 
 	
@@ -135,7 +135,7 @@ int sys_fork()
 	child_task->kernel_esp = 	&((unsigned long *)KERNEL_ESP(child_union))[-0x13]; 
 
 	// i) empilem a la readyqueue el fill
-	list_add(&child_task->list, &readyqueue);
+	list_add_tail(&child_task->list, &readyqueue);
 
 	// j) retornem el PID del fill
 
