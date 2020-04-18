@@ -168,6 +168,7 @@ ENTRY(inner_task_switch)
 	pushl %ebp
 	movl %esp, %ebp
 	movl $tss, %eax // adressa de la tss
+	//str %eax // adressa de la tss
 
 	//movl $KERNEL_STACK_SIZE, %ecx
 	movl $1024, %ecx
