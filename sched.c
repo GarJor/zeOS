@@ -127,7 +127,12 @@ void set_quantum(struct task_struct *t, int new_quantum){
 }
 
 void update_sched_data_rr (void){
-	if (quantum_ticks > 0)--quantum_ticks;
+	if(quantum_ticks > 0)	--quantum_ticks;
+	else {
+	quantum_ticks = current()->quantum;
+		
+	
+	}
 }
 
 int needs_sched_rr(void){
