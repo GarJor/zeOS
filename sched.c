@@ -131,7 +131,12 @@ void update_sched_data_rr (void){
 }
 
 int needs_sched_rr(void){
-	return quantum_ticks <= 0 && !list_empty(&readyqueue); //no hem d'ocupar la CPU amb idle si hi ha un proces que pot usar la CPU. 
+	if (quantum_ticks > 0) return 0;
+	if (list_empty(&readyqueue)){  //Si la llista es buida no canviis pero compta trans.
+		current()->estat.total_trans++;
+		return 0;
+	}
+	return 1;
 }
 
 void update_process_state_rr (struct task_struct *t, struct list_head *dst_queue)

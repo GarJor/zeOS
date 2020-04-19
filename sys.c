@@ -25,6 +25,7 @@
 extern void init_stat(struct task_struct *t);
 extern struct task_struct * get_task(int pid);
 extern int zeos_ticks;
+extern int quantum_ticks;
 extern struct list_head  freequeue, readyqueue;
 int nextPID = 2; // COM? i ON?
 int check_fd(int fd, int permissions)
@@ -199,6 +200,7 @@ int sys_get_stats(int pid, struct stats *st){
     struct task_struct *task = get_task(pid);
     if (task != 0) {
         struct stats * task_st = &(task->estat);
+				task_st->remaining_ticks = quantum_ticks;  //Cal actualitzar els ticks!!
         copy_to_user(task_st, st, sizeof(struct stats));
     }
     return task == 0 ? -ESRCH : 0;
