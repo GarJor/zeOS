@@ -127,17 +127,14 @@ void set_quantum(struct task_struct *t, int new_quantum){
 }
 
 void update_sched_data_rr (void){
-	if(quantum_ticks > 0)	--quantum_ticks;
-	else {
-	quantum_ticks = current()->quantum;
-		
+	--quantum_ticks;
 	
-	}
 }
 
 int needs_sched_rr(void){
 	if (quantum_ticks > 0) return 0;
 	if (list_empty(&readyqueue)){  //Si la llista es buida no canviis pero compta trans.
+		quantum_ticks = current()->quantum;
 		current()->estat.total_trans++;
 		return 0;
 	}

@@ -94,11 +94,11 @@ ENTRY(system_call_handler)
 	cmpl $MAX_SYSCALL, %EAX
 	jg err   
 	push %eax
-	call sys_to_user_ready
+	call user_to_sys
 	pop %eax
 	call *sys_call_table(, %EAX, 0x04) 
 	push %eax
-	call user_to_sys
+	call sys_to_user_ready
 	pop %eax
 	jmp fin 
 err:
@@ -120,11 +120,11 @@ ENTRY(syscall_handler_sysenter)
 	cmpl $MAX_SYSCALL, %EAX
 	jg sysenter_err
 	push %eax
-	call sys_to_user_ready
+	call user_to_sys
 	pop %eax
 	call *sys_call_table(, %EAX, 0x04) 
 	push %eax
-	call user_to_sys
+	call sys_to_user_ready
 	pop %eax
 	jmp sysenter_fin
 sysenter_err:
@@ -167,6 +167,7 @@ ENTRY(task_switch)
 ENTRY(inner_task_switch)
 	pushl %ebp
 	movl %esp, %ebp
+	call sys_to_user_ready  //poso a la cua el proces
 	movl $tss, %eax // adressa de la tss
 	//str %eax // adressa de la tss
 
@@ -187,7 +188,6 @@ ENTRY(inner_task_switch)
 	pushl 4(%edx)	
 	call set_cr3  //set_cr3(&t -> task.dir_pages_baseAddr)
 	addl $4, %esp
-	call sys_to_user_ready  //poso a la cua el proces
 	call current
 	movl %ebp, 0x10(%eax) // current() -> kernel_esp = %ebp
 	
