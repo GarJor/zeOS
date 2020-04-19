@@ -72,18 +72,18 @@
 ENTRY(keyboard_handler)
 	SAVE_ALL;
 	EOI;
-	call sys_to_user_ready
-	call keyboard_routine 
 	call user_to_sys
+	call keyboard_routine 
+	call sys_to_user_ready
 	RESTORE_ALL;
 	iret;	
 	
 ENTRY(clock_handler)
 	SAVE_ALL;
 	EOI;
-	call sys_to_user_ready
-	call clock_routine 
 	call user_to_sys
+	call clock_routine 
+	call sys_to_user_ready
 	RESTORE_ALL;
 	iret;	
 
