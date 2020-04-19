@@ -127,7 +127,7 @@ void set_quantum(struct task_struct *t, int new_quantum){
 }
 
 void update_sched_data_rr (void){
-	--quantum_ticks;
+	if (quantum_ticks > 0)--quantum_ticks;
 }
 
 int needs_sched_rr(void){
@@ -150,7 +150,6 @@ void sched_next_rr(void){
 	list_del(list_nou);
 	union task_union *nova_taska = (union task_union *) list_head_to_task_struct (list_nou);
 	quantum_ticks = ((struct task_struct *)nova_taska)->quantum; // nova taska == nou quantum
-	((struct task_struct *)nova_taska)->estat.total_trans++; // passa de ready a run
 	task_switch(nova_taska); 
 }
 
@@ -189,6 +188,7 @@ void ready_to_sys()
   st->ready_ticks += get_ticks() - st->elapsed_total_ticks;
   st->elapsed_total_ticks = get_ticks();
   st->remaining_ticks = quantum_ticks;
+	st->total_trans++;
 // caldria incrementar total_trans?
 
 }
