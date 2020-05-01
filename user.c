@@ -15,11 +15,11 @@ int __attribute__ ((__section__(".text.main")))
   while(1) 
   {
 		char a;
-		if(get_key(&a) > -1 ) {
+		if(get_key(&a) > 0 ) {
 		
 			write(1,&a,1);
 
-		}
+		} 
 		
   }
 }

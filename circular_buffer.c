@@ -1,4 +1,5 @@
-#include<circular_buffer.h>
+#include <circular_buffer.h>
+#include <errno.h>
 
 void circular_init(struct circular_buffer *buff){
 	buff->read = 0;
@@ -18,9 +19,9 @@ int circular_read(struct circular_buffer *buff, char *rd){
 			*rd = buff->buffer[buff->read];
 			buff->buffer[buff->read++] = '\x00';
 			buff->read = buff->read % MAX_VAL;
-			return 0;
+			return 1;
 		}
-		return -1;
+		return -ENOINP;
 }
 
 void circular_write(struct circular_buffer *buff, char wr){

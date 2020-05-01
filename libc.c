@@ -185,7 +185,7 @@ int strlen(char *a)
 
 
 void perror (void) {
-	if(errno > 44 || errno < 1) {
+	if(errno > 133 || errno < 1) {
 
 		write(1, "Unknown Error", 13);
 		return;
