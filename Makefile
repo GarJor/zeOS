@@ -23,6 +23,7 @@ ASMFLAGS = -I$(INCLUDEDIR)
 LDFLAGS = -g -melf_i386
 
 SYSOBJ = \
+	circular_buffer.o \
 	interrupt.o \
 	entry.o \
 	sys_call_table.o \
@@ -74,6 +75,8 @@ wrapper.s: wrapper.S $(INCLUDEDIR)/asm.h
 user.o:user.c $(INCLUDEDIR)/libc.h
 
 interrupt.o:interrupt.c $(INCLUDEDIR)/interrupt.h $(INCLUDEDIR)/segment.h $(INCLUDEDIR)/types.h
+
+circular_buffer.o:circular_buffer.c $(INCLUDEDIR)/circular_buffer.h $(INCLUDEDIR)/segment.h $(INCLUDEDIR)/types.h
 
 io.o:io.c $(INCLUDEDIR)/io.h
 

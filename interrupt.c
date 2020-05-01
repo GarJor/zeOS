@@ -8,6 +8,7 @@
 #include <io.h>
 #include <sched.h>
 #include <zeos_interrupt.h>
+#include <circular_buffer.h>
 
 Gate idt[IDT_ENTRIES];
 Register    idtR;
@@ -16,6 +17,8 @@ extern int zeos_ticks;
 extern struct task_struct* idle_task;
 extern void task_switch(union task_union *new);
 extern struct list_head readyqueue;
+//PER LA PRIMERA ENTREGA, BUFFER CIRCULAR
+struct circular_buffer keyboard_buffer;
 
 char char_map[] =
 {
