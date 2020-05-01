@@ -65,7 +65,7 @@ char *etos[] = {    			//missatges d'error pel perror. Estan tots.
 	"Invalid exchange",
 	"Invalid request descriptor",
 	"Exchange full",
-	"No anode",
+	"No input value on keyboard buffer",
 	"Invalid request code",
 	"Invalid slot",
 	"Resource deadlock avoided",

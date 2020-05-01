@@ -55,7 +55,7 @@
  #define EBADE           52      //!< Invalid exchange.
  #define EBADR           53      //!< Invalid request descriptor.
  #define EXFULL          54      //!< Exchange full.
- #define ENOANO          55      //!< No anode.
+ #define ENOINP          55      //!< No hi ha input al buffer de teclat.   //custom
  #define EBADRQC         56      //!< Invalid request code.
  #define EBADSLT         57      //!< Invalid slot.
  
