@@ -13,7 +13,12 @@ int __attribute__ ((__section__(".text.main")))
 	//runjp();
 
 	
-	char c [25][80]={{'c'}};
+//	char c [25][80]={{0x41}};
+	char c[25][80] ;
+	c[0][0] = 'A';
+	c[24][0] = 'A';
+	c[24][79] = 'A';
+	c[0][79] = 'A';
 	put_screen(c);
 	
   while(1) 
