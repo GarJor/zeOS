@@ -17,7 +17,7 @@ extern int zeos_ticks;
 extern struct task_struct* idle_task;
 extern void task_switch(union task_union *new);
 extern struct list_head readyqueue;
-//PER LA PRIMERA ENTREGA, BUFFER CIRCULAR
+//Per al Nivell 1:  BUFFER CIRCULAR
 struct circular_buffer keyboard_buffer;
 
 char char_map[] =
@@ -113,12 +113,12 @@ void keyboard_routine()
 	if ( value & 0x80 ) // make
 	{
 		unsigned char code = value & 0x7f;
-		if( code > sizeof(char_map) ) printc_xy(0,0,'C');
+		if( code > sizeof(char_map) ) circular_write(&keyboard_buffer, 'C');
 		else 
 		{
 			char key = char_map[code];
-			if( key != '\0' ) printc_xy(0,0,key);	
-			else printc_xy(0,0,'C');
+			if( key != '\0' ) circular_write(&keyboard_buffer, key);	
+			else circular_write(&keyboard_buffer, 'C');
 		}
 	}
 }
