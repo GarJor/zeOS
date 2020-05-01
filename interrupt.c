@@ -14,11 +14,10 @@ Gate idt[IDT_ENTRIES];
 Register    idtR;
 
 extern int zeos_ticks;
+extern struct circular_buffer keyboard_buffer;
 extern struct task_struct* idle_task;
 extern void task_switch(union task_union *new);
 extern struct list_head readyqueue;
-//Per al Nivell 1:  BUFFER CIRCULAR
-struct circular_buffer keyboard_buffer;
 
 char char_map[] =
 {

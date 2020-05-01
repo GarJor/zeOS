@@ -17,6 +17,8 @@
 
 #include <libc.h>
 
+#include <circular_buffer.h>
+
 
 
 #define LECTURA 0
@@ -25,6 +27,7 @@
 extern void init_stat(struct task_struct *t);
 extern struct task_struct * get_task(int pid);
 extern int zeos_ticks;
+extern struct circular_buffer keyboard_buffer;
 extern int quantum_ticks;
 extern struct list_head  freequeue, readyqueue;
 int nextPID = 2; // COM? i ON?
@@ -205,4 +208,8 @@ int sys_get_stats(int pid, struct stats *st){
     }
     return task == 0 ? -ESRCH : 0;
 
+}
+
+int sys_get_key(char *c) {
+ 	return circular_read(&keyboard_buffer, c);
 }

@@ -16,5 +16,6 @@ struct circular_buffer {
 int circular_empty(struct circular_buffer *buff);
 int circular_read(struct circular_buffer *buff, char *rd);
 void circular_write(struct circular_buffer *buff, char wr);
+void circular_init(struct circular_buffer *buff);
 
 #endif

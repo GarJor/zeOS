@@ -12,6 +12,7 @@
 #include <io.h>
 #include <utils.h>
 #include <zeos_mm.h> /* TO BE DELETED WHEN ADDED THE PROCESS MANAGEMENT CODE TO BECOME MULTIPROCESS */
+#include <circular_buffer.h>
 
 
 int (*usr_main)(void) = (void *) PH_USER_START;
@@ -58,6 +59,8 @@ inline void set_seg_regs(Word data_sel, Word stack_sel, DWord esp)
  *   Main entry point to ZEOS Operating System
  */
 int zeos_ticks;
+//Per al Nivell 1:  BUFFER CIRCULAR
+struct circular_buffer keyboard_buffer;
 int __attribute__((__section__(".text.main")))
   main(void)
 {
@@ -93,7 +96,8 @@ int __attribute__((__section__(".text.main")))
   init_idle();
   /* Initialize task 1 data */
   init_task1();
-
+	/* Initialize keyboard_buffer */
+	circular_init(&keyboard_buffer);
   /* Move user code/data now (after the page table initialization) */
   copy_data((void *) KERNEL_START + *p_sys_size, usr_main, *p_usr_size);
 

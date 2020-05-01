@@ -189,3 +189,37 @@ no_error_getstats:    //he d'execurtar sempre aixo en quaslevol cas per sortir d
 	ret
 
 
+ENTRY(get_key)
+	pushl %ebp
+	movl %esp, %ebp
+	//syscall ID
+	movl $15, %eax
+	//empilar registres pel retorn (aquests cal guardarlos quan es fa un sysenter)
+	pushl %ecx
+	pushl %edx
+//paràmetres
+	movl 8(%ebp), %ebx
+	//guardem la etiqueta de retorn
+	push $return_get_key
+	//nou enllacç dinamic
+	pushl %ebp
+	movl %esp, %ebp
+	sysenter
+return_get_key:
+	//restaurem enllaç dinamic
+	popl %ebp
+	//elimino l'adreça de retorn
+	addl $4, %esp
+	//restauro registres
+	popl %edx
+	popl %ecx
+	//comporovo que no hi hagi errors
+	cmpl $0, %eax
+	jge no_error_get_key //salto a la resta de la rutina
+	//tracto l'error
+	negl %eax
+	movl %eax, errno
+	movl $-1, %eax
+no_error_get_key:    //he d'execurtar sempre aixo en quaslevol cas per sortir de la rutina.  
+	popl %ebp
+	ret

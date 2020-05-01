@@ -15,7 +15,9 @@ int circular_empty(struct circular_buffer *buff){
 
 int circular_read(struct circular_buffer *buff, char *rd){
 		if (! circular_empty(buff)){
-			*rd = buff->buffer[buff->read++];
+			*rd = buff->buffer[buff->read];
+			buff->buffer[buff->read++] = '\x00';
+			buff->read = buff->read % MAX_VAL;
 			return 0;
 		}
 		return -1;
@@ -23,4 +25,5 @@ int circular_read(struct circular_buffer *buff, char *rd){
 
 void circular_write(struct circular_buffer *buff, char wr){
 		buff->buffer[buff->write++] = wr;
+		buff->write = buff->write % MAX_VAL;
 }
