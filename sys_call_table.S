@@ -18,7 +18,7 @@ ENTRY (sys_call_table)
 	.long sys_ni_syscall//13
 	.long sys_ni_syscall//14
 	.long sys_get_key//15
-	.long sys_ni_syscall//16
+	.long sys_put_screen//16
 	.long sys_ni_syscall//17
 	.long sys_ni_syscall//18
 	.long sys_ni_syscall//19
