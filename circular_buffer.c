@@ -20,7 +20,8 @@ int circular_read(struct circular_buffer *buff, char *rd){
 			buff->buffer[buff->read++] = '\x00';
 			buff->read = buff->read % MAX_VAL;
 			return 1;
-		}
+		} 
+		*rd = '\x00';
 		return -ENOINP;
 }
 

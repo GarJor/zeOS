@@ -40,9 +40,10 @@ LIBZEOS = -L . -l zeos -l auxjp
 
 #add to USROBJ any object files required to complete the user program
 USROBJ = \
+	jplib.o \
 	libc.o \
-  wrapper.o\
-	libjp.a 
+  wrapper.o \
+	libjp.a \
 
 all:zeos.bin
 
@@ -73,6 +74,9 @@ wrapper.s: wrapper.S $(INCLUDEDIR)/asm.h
 	$(CPP) $(ASMFLAGS) -o $@ $<
 
 user.o:user.c $(INCLUDEDIR)/libc.h
+
+jplib.o: tests/jplib.c 
+	$(CC) $(CFLAGS)	 -Wno-implicit-function-declaration -c tests/jplib.c 
 
 interrupt.o:interrupt.c $(INCLUDEDIR)/interrupt.h $(INCLUDEDIR)/segment.h $(INCLUDEDIR)/types.h
 

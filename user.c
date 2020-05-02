@@ -12,27 +12,9 @@ int __attribute__ ((__section__(".text.main")))
 
 	//runjp();
 
-	
-	char c [25][80]={{'c'}};
-	put_screen(c);
-	
+	jp_all();	
   while(1) 
   {
-		//char a;
-//		if(get_key(&a) > 0 ) {
-//		
-//			write(1,&a,1);
-//
-//		} 
-//	int i = 0;
-//	char c [25][80]={{'c'}};
-//	while(i++!=10000);
-//	put_screen(c);
-//	char a [25][80]={{'a'}};
-//	put_screen(a);
-//	while(i++!=10000);
-//	char t [25][80]={{'t'}};
-//	put_screen(t);	
 			
   }
 }
