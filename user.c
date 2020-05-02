@@ -13,6 +13,7 @@ int __attribute__ ((__section__(".text.main")))
 	//runjp();
 
 	jp_all();	
+	
   while(1) 
   {
 			
