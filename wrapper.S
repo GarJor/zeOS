@@ -160,6 +160,7 @@ ENTRY(get_stats)
 	//empilar registres pel retorn (aquests cal guardarlos quan es fa un sysenter)
 	pushl %ecx
 	pushl %edx
+	pushl %ebx
 //paràmetres
 	movl 8(%ebp), %ebx
   movl 12(%ebp), %ecx
@@ -175,6 +176,7 @@ return_getstats:
 	//elimino l'adreça de retorn
 	addl $4, %esp
 	//restauro registres
+	popl %ebx
 	popl %edx
 	popl %ecx
 	//comporovo que no hi hagi errors
@@ -197,6 +199,7 @@ ENTRY(get_key)
 	//empilar registres pel retorn (aquests cal guardarlos quan es fa un sysenter)
 	pushl %ecx
 	pushl %edx
+	pushl %ebx
 //paràmetres
 	movl 8(%ebp), %ebx
 	//guardem la etiqueta de retorn
@@ -211,6 +214,7 @@ return_get_key:
 	//elimino l'adreça de retorn
 	addl $4, %esp
 	//restauro registres
+	popl %ebx
 	popl %edx
 	popl %ecx
 	//comporovo que no hi hagi errors
@@ -234,6 +238,7 @@ ENTRY(put_screen)
 	//empilar registres pel retorn (aquests cal guardarlos quan es fa un sysenter)
 	pushl %ecx
 	pushl %edx
+	pushl %ebx
 //paràmetres
 	movl 8(%ebp), %ebx
 	//guardem la etiqueta de retorn
@@ -248,6 +253,7 @@ return_put_screen:
 	//elimino l'adreça de retorn
 	addl $4, %esp
 	//restauro registres
+	popl %ebx
 	popl %edx
 	popl %ecx
 	//comporovo que no hi hagi errors

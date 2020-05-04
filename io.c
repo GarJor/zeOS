@@ -49,10 +49,12 @@ void printc(char c)
 
 //Per la implementació del put_screen. 
 void print_screen(char * s){
-	//copy_data(s,(void *)0xb8000, NUM_COLUMNS*NUM_ROWS);
 	x = 0;
 	y = 0;
+	char dst[25][80];
 	int size = NUM_COLUMNS*NUM_ROWS;
+	copy_from_user(s,dst,size);
+	s =(char *) &dst;
   Word *q = (Word *)0xb8000;
   while(size > 0) {
     *q++ = (*s++ & 0xff) | 0x0200;
