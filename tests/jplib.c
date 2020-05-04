@@ -1,5 +1,5 @@
-#define TOTAL 1
-
+#define TOTAL 1f
+#include <libc.h>
 
 
 
@@ -22,7 +22,8 @@ void init_scen(char scen[25][80]) {
 }
 
 void test_joc() {
-
+	char buff[] = "TEST 2: provant la crida a sistema get_key() i put_screen()";
+	write(1,buff,strlen(buff));
 	char scen[25][80];
 	init_scen(scen);
 	int x = 12;
@@ -63,10 +64,30 @@ void test_joc() {
 	}
 }
 
-
+void test_get_key(){
+	char buff[] = "\nTEST 1: provant la crida a sistema get_key()";
+	write(1,buff,strlen(buff));
+	char buff2[] = "\nEscriu tecles si us plau\n";
+	write(1,buff2,strlen(buff2));
+	unsigned long t = gettime();
+	while(gettime() <= t+1100);
+	char buff3[] = "s'han de mostrar les últimes 8 lletres que has premut\n";
+	write(1,buff3,strlen(buff3));
+	int i = 8;
+	while(i-->0){
+		char a;
+		get_key(&a);
+		a='A';
+		write(1,&a,1);
+		write(1," ",1);
+    
+	}	
+		write(1,"\n",1);
+}
 
 void jp_all() {
-	test_joc();
+	test_get_key();
+//	test_joc();
 }
 
 void jp_rank(){
