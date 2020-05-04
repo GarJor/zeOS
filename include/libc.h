@@ -22,6 +22,13 @@ int fork();
 
 void exit();
 
+int get_stats(int pid, struct stats *st);
+
+int get_key(char *c);
+
+int put_screen(char *s);
+
 void perror(void);
 
 #endif  /* __LIBC_H__ */
+

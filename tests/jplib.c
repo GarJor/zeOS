@@ -1,3 +1,6 @@
+#include <utils.h>
+
+
 #define TOTAL 1
 
 
@@ -5,7 +8,10 @@
 
 
 void init_scen(char scen[25][80]) {
-
+	char txt[25] = "Mou-te amb les tecles vim";
+	for(int i = 0; i < 25; ++i) scen[3][3+i] = txt[i];
+	char	txt2[19] = "Prem 'q' per sortir";
+	for(int i = 0; i < 19; ++i) scen[4][3+i] = txt2[i];
 	for (int i = 1; i < 24; i++) {
 		scen[i][0] = '|';
 		scen[i][79] = '|';
@@ -21,49 +27,45 @@ void init_scen(char scen[25][80]) {
 		scen[24][79] = '+';
 }
 
-
-
-
-
 void test_joc() {
 
 	char scen[25][80];
 	init_scen(scen);
 	int x = 12;
 	int y = 40;
-	char inp = 'U';
-	
+	char inp = 'U'; //0xb117ff 
 	scen[x][y] = '@';
 	while(inp != 'q') {
-	scen[0][0] = inp;
-		if (inp == 'h') {
+
+		get_key(&inp); //0xb11800
+		if (inp == 'k') { //0xb117ff
 			if(x > 1) {
-				scen[x][y] = ' ';
+				scen[x][y] = '\x00';
 				scen[--x][y] = '@';
 			}
 		}
 
-		if (inp == 'j') {
-			if(y < 78) {
-				scen[x][y] = ' ';
+		if (inp == 'l') {
+			if(y < 78 ) {
+				scen[x][y] = '\x00';
 				scen[x][++y] = '@';
 			}
 		}
 
-		if (inp == 'k') {
+		if (inp == 'h') {
 			if(y > 1) {
-				scen[x][y] = ' ';
+				scen[x][y] = '\x00';
 				scen[x][--y] = '@';
 			}
 		}
-		if (inp == 'l') {
+		if (inp == 'j') {
 			if(x < 23) {
-				scen[x][y] = ' ';
+				scen[x][y] = '\x00';
 				scen[++x][y] = '@';
 			}
 		}
-		put_screen(scen);
-		get_key(&inp);
+	  put_screen(scen);
+		
 	}
 }
 

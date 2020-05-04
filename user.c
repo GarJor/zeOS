@@ -4,6 +4,8 @@ char buff[24];
 
 int pid;
 
+
+
 int __attribute__ ((__section__(".text.main")))
   main(void)
 {
@@ -13,9 +15,9 @@ int __attribute__ ((__section__(".text.main")))
 	//runjp();
 
 	jp_all();	
-	
   while(1) 
   {
-			
+//		char a;
+//		if(	get_key(&a) > 0) write(1,&a,1);
   }
 }
