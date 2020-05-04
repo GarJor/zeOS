@@ -54,7 +54,7 @@ void print_screen(char * s){
 	char dst[25][80];
 	int size = NUM_COLUMNS*NUM_ROWS;
 	copy_from_user(s,dst,size);
-	s = &dst;
+	s =(char *) &dst;
   Word *q = (Word *)0xb8000;
   while(size > 0) {
     *q++ = (*s++ & 0xff) | 0x0200;
