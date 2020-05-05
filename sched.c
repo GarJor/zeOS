@@ -19,7 +19,12 @@ struct task_struct *list_head_to_task_struct(struct list_head *l)
 
 extern struct list_head blocked;
 
+//int spf_quantum;   //es la variable que diu quants ticks han de passar entre cada put screen
+
 int quantum_ticks;
+int spf_ticks; //Per contar els segons (18 tics en cada segon).
+int spf_sem;   //variable que es decrementa segons els frames que s'han mostrat
+int fps; //variable que conté els fps a mostrar
 struct list_head freequeue, readyqueue;
 struct task_struct * idle_task;
 void writeMSR(int index_MSR, int value_MSR);
@@ -111,6 +116,8 @@ void init_sched()
 	INIT_LIST_HEAD( &freequeue );
 	INIT_LIST_HEAD( &readyqueue );
 	quantum_ticks = 0;
+	spf_ticks = -1;
+	spf_sem = -1;
 	int i;
 	for(i=0; i<NR_TASKS; i++)
 		list_add( &(task[i].task.list), &freequeue );
@@ -167,6 +174,16 @@ void schedule (void)
 	{
 		update_process_state_rr(current(), &readyqueue);   //temps esgotat
 		sched_next_rr();
+	}
+}
+
+void schedule_fps(void){
+	if (spf_ticks!=-1){
+		--spf_ticks;
+		if (spf_ticks <= 0){
+			spf_ticks = 18;
+			spf_sem = fps;
+		}
 	}
 }
 

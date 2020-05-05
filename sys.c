@@ -29,6 +29,7 @@ extern struct task_struct * get_task(int pid);
 extern int zeos_ticks;
 extern struct circular_buffer keyboard_buffer;
 extern int quantum_ticks;
+extern int spf_sem;
 extern struct list_head  freequeue, readyqueue;
 int nextPID = 2; // COM? i ON?
 int check_fd(int fd, int permissions)
@@ -219,5 +220,6 @@ int sys_get_key(char *c) {
 
 int sys_put_screen(char * s){		
 	print_screen(s);	
+	--spf_sem;
 	return 1;
 }

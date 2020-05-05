@@ -64,5 +64,6 @@ void update_sched_data_rr();
 int get_quantum (struct task_struct *t);
 void set_quantum (struct task_struct *t, int new_quantum);
 void schedule(void);
+void schedule_fps(void);
 
 #endif  /* __SCHED_H__ */
