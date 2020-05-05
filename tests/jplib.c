@@ -9,19 +9,62 @@ void init_scen(char scen[25][80]) {
 	for(int i = 0; i < 25; ++i) scen[3][3+i] = txt[i];
 	char	txt2[19] = "Prem 'q' per sortir";
 	for(int i = 0; i < 19; ++i) scen[4][3+i] = txt2[i];
-	for (int i = 1; i < 24; i++) {
-		scen[i][0] = '|';
-		scen[i][79] = '|';
-	} 
-	for (int i = 1; i < 79; i++) {
-		scen[0][i] = '-';
-		scen[24][i] = '-';
-	} 
+	for(int i =0; i < 25; ++i){
+		for(int j = 0; j < 80; ++j){
+			char a = '\x00';
+			if(i==0 || i==24) a = '-';
+			if(j==0 || j ==79) a = '|';
+			scen[i][j] = a;
+			
+		} 
+	}
+//	for (int i = 1; i < 24; i++) {
+//		scen[i][0] = '|';
+//		scen[i][79] = '|';
+//	} 
+//	for (int i = 1; i < 79; i++) {
+//		scen[0][i] = '-';
+//		scen[24][i] = '-';
+//	} 
 
 		scen[0][0] = '+';
 		scen[0][79] = '+';
 		scen[24][0] = '+';
 		scen[24][79] = '+';
+}
+
+void omple(char a[], char *b) {
+
+	for(int i = 0; i < strlen(a); ++i) *b++ = a[i];
+
+}
+void procrea(int fills) {
+
+	for(i = 0; i < fills; ++i) {
+		int p = fork();
+		if(p == 0) {
+			while(1);
+		}
+	
+	}
+
+}
+void test_fps() {
+	procrea(5);	
+	char scen[25][80];
+	omple("TEST 3: Calcul de fps",&scen[3][3]);
+	int j = 10000;
+	int i = 0;
+	int ini = gettime();
+	while(i < j){
+		put_screen((char *)scen);
+		++i;
+	}
+	int segs = (gettime()-ini) / 18;
+	int res = j/segs; 
+	itoa(res,&scen[5][9]);
+	omple("fps", &scen[5][17]);
+	put_screen((char *)scen);
 }
 
 void test_joc() {
@@ -88,8 +131,9 @@ void test_get_key(){
 }
 
 void jp_all() {
-	test_get_key();
-	test_joc();
+	test_fps();
+	//test_get_key();
+	//test_joc();
 }
 
 void jp_rank(){
