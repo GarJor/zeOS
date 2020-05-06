@@ -28,6 +28,8 @@ int get_key(char *c);
 
 int put_screen(char *s);
 
+int set_fps(int fps);
+
 void perror(void);
 
 #endif  /* __LIBC_H__ */

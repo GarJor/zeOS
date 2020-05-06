@@ -266,3 +266,42 @@ return_put_screen:
 no_error_put_screen:    //he d'execurtar sempre aixo en quaslevol cas per sortir de la rutina.  
 	popl %ebp
 	ret
+
+
+
+ENTRY(set_fps)
+	pushl %ebp
+	movl %esp, %ebp
+	//syscall ID
+	movl $17, %eax
+	//empilar registres pel retorn (aquests cal guardarlos quan es fa un sysenter)
+	pushl %ecx
+	pushl %edx
+	pushl %ebx
+//paràmetres
+	movl 8(%ebp), %ebx
+	//guardem la etiqueta de retorn
+	push $return_set_fps
+	//nou enllacç dinamic
+	pushl %ebp
+	movl %esp, %ebp
+	sysenter
+return_set_fps:
+	//restaurem enllaç dinamic
+	popl %ebp
+	//elimino l'adreça de retorn
+	addl $4, %esp
+	//restauro registres
+	popl %ebx
+	popl %edx
+	popl %ecx
+	//comporovo que no hi hagi errors
+	cmpl $0, %eax
+	jge no_error_set_fps //salto a la resta de la rutina
+	//tracto l'error
+	negl %eax
+	movl %eax, errno
+	movl $-1, %eax
+no_error_set_fps:    //he d'execurtar sempre aixo en quaslevol cas per sortir de la rutina.  
+	popl %ebp
+	ret

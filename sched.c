@@ -24,7 +24,7 @@ extern struct list_head blocked;
 int quantum_ticks;
 int spf_ticks; //Per contar els segons (18 tics en cada segon).
 int spf_sem;   //variable que es decrementa segons els frames que s'han mostrat
-int fps; //variable que conté els fps a mostrar
+int gfps; //variable que conté els fps a mostrar
 struct list_head freequeue, readyqueue;
 struct task_struct * idle_task;
 void writeMSR(int index_MSR, int value_MSR);
@@ -182,7 +182,7 @@ void schedule_fps(void){
 		--spf_ticks;
 		if (spf_ticks <= 0){
 			spf_ticks = 18;
-			spf_sem = fps;
+			spf_sem = gfps;
 		}
 	}
 }

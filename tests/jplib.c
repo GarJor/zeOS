@@ -2,6 +2,12 @@
 #include <libc.h>
 
 
+void flush_screen(char scen[25][80]) {
+	for(int i = 0; i < 25; ++i) {
+		for(int j = 0; j < 80; ++j) scen[i][j] = '\x00';
+	}
+
+}
 
 
 void init_scen(char scen[25][80]) {
@@ -9,23 +15,15 @@ void init_scen(char scen[25][80]) {
 	for(int i = 0; i < 25; ++i) scen[3][3+i] = txt[i];
 	char	txt2[19] = "Prem 'q' per sortir";
 	for(int i = 0; i < 19; ++i) scen[4][3+i] = txt2[i];
-	for(int i =0; i < 25; ++i){
-		for(int j = 0; j < 80; ++j){
-			char a = '\x00';
-			if(i==0 || i==24) a = '-';
-			if(j==0 || j ==79) a = '|';
-			scen[i][j] = a;
-			
-		} 
-	}
-//	for (int i = 1; i < 24; i++) {
-//		scen[i][0] = '|';
-//		scen[i][79] = '|';
-//	} 
-//	for (int i = 1; i < 79; i++) {
-//		scen[0][i] = '-';
-//		scen[24][i] = '-';
-//	} 
+
+	for (int i = 1; i < 24; i++) {
+		scen[i][0] = '|';
+		scen[i][79] = '|';
+	} 
+	for (int i = 1; i < 79; i++) {
+		scen[0][i] = '-';
+		scen[24][i] = '-';
+	} 
 
 		scen[0][0] = '+';
 		scen[0][79] = '+';
@@ -40,7 +38,7 @@ void omple(char a[], char *b) {
 }
 void procrea(int fills) {
 
-	for(i = 0; i < fills; ++i) {
+	for(int i = 0; i < fills; ++i) {
 		int p = fork();
 		if(p == 0) {
 			while(1);
@@ -49,28 +47,40 @@ void procrea(int fills) {
 	}
 
 }
+
+
 void test_fps() {
-	procrea(5);	
 	char scen[25][80];
+	flush_screen(scen);
 	omple("TEST 3: Calcul de fps",&scen[3][3]);
-	int j = 10000;
+	int max = 10000;
 	int i = 0;
+	int j = 0;
 	int ini = gettime();
-	while(i < j){
-		put_screen((char *)scen);
+	while(i < max){
+		j += put_screen((char *)scen);
 		++i;
 	}
 	int segs = (gettime()-ini) / 18;
-	int res = j/segs; 
+	int res = (segs == 0)? j : j/segs; 
 	itoa(res,&scen[5][9]);
 	omple("fps", &scen[5][17]);
-	put_screen((char *)scen);
+//	put_screen((char *)scen); // hauriem de guardar lultim putscreen per printarlo al final perk sino perdem el estat del final
+	write(1,&scen[5][9],11);
+}
+
+void test_set_fps() {
+
+	set_fps(20);
+	test_fps();
+
 }
 
 void test_joc() {
 	char buff[] = "TEST 2: provant la crida a sistema get_key() i put_screen()";
 	write(1,buff,strlen(buff));
 	char scen[25][80];
+	flush_screen(scen);
 	init_scen(scen);
 	int x = 12;
 	int y = 40;
@@ -113,11 +123,11 @@ void test_joc() {
 void test_get_key(){
 	char buff[] = "\nTEST 1: provant la crida a sistema get_key()";
 	write(1,buff,strlen(buff));
-	char buff2[] = "\nEscriu tecles si us plau\n";
+	char buff2[] = "\nEscriu tecles si us plau en els propers 60 segons del zeOS. S'han de mostrar les ultimes 8 premudes.\n";
 	write(1,buff2,strlen(buff2));
 	unsigned long t = gettime();
-	while(gettime() <= t+1100);
-	char buff3[] = "s'han de mostrar les ultimes 8 lletres que has premut\n";
+	while(gettime() <= t+1080);
+	char buff3[] = "Les ultimes 8 lletres que has premut:\n";
 	write(1,buff3,strlen(buff3));
 	int i = 8;
 	while(i-->0){
@@ -131,12 +141,27 @@ void test_get_key(){
 }
 
 void jp_all() {
-	test_fps();
-	//test_get_key();
-	//test_joc();
+	test_get_key(); // 1
+	test_joc(); // 2
+	test_set_fps(); // 3
 }
 
-void jp_rank(){
+void jp_rank(int ini, int fin){
 
-	write(1,"testR\n",6);
+	for(int i = ini ; i <= fin; i++) {
+
+		switch(i) {
+			case 1:
+				test_get_key();
+				break;
+			case 2:
+				test_joc();
+				break;
+			case 3:
+				test_set_fps();
+				break;
+		}
+
+
+	} 
 }

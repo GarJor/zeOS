@@ -30,6 +30,8 @@ extern int zeos_ticks;
 extern struct circular_buffer keyboard_buffer;
 extern int quantum_ticks;
 extern int spf_sem;
+extern int	gfps;
+extern int	spf_ticks;
 extern struct list_head  freequeue, readyqueue;
 int nextPID = 2; // COM? i ON?
 int check_fd(int fd, int permissions)
@@ -219,7 +221,17 @@ int sys_get_key(char *c) {
 }
 
 int sys_put_screen(char * s){		
-	print_screen(s);	
-	--spf_sem;
+	if(spf_sem > 0 || spf_ticks == -1){	
+		 print_screen(s);	
+		--spf_sem;
+		return 1;
+	}
+	return 0;
+}
+
+int sys_set_fps(int fps) {
+	gfps = fps;
+	spf_ticks =18;
+	spf_sem = fps;
 	return 1;
 }
