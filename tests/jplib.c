@@ -53,7 +53,8 @@ void test_fps() {
 	char scen[25][80];
 	flush_screen(scen);
 	omple("TEST 3: Calcul de fps",&scen[3][3]);
-	set_fps(20);
+	procrea(5);
+	set_fps(30);
 	int max = 10000;
 	int i = 0;
 	int j = 0;

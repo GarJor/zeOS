@@ -12,7 +12,7 @@
 
 #define NR_TASKS      10
 #define KERNEL_STACK_SIZE	1024
-#define QUANTUM 75  //??
+#define QUANTUM 5
 enum state_t { ST_RUN, ST_READY, ST_BLOCKED };
 
 struct task_struct {

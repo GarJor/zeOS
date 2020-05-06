@@ -32,7 +32,7 @@ extern int quantum_ticks;
 extern int spf_sem;
 extern int	gfps;
 extern int	spf_ticks;
-extern struct list_head  freequeue, readyqueue;
+extern struct list_head  freequeue, readyqueue, priorityqueue;
 extern char *spf_last_screen;
 int nextPID = 2; // COM? i ON?
 int check_fd(int fd, int permissions)
@@ -142,7 +142,8 @@ int sys_fork()
 	child_task->kernel_esp = 	&((unsigned long *)KERNEL_ESP(child_union))[-0x13]; 
 
 	// i) empilem a la readyqueue el fill
-	list_add_tail(&child_task->list, &readyqueue);
+	if (child_task->nice)list_add_tail(&child_task->list, &readyqueue);
+	else list_add_tail(&child_task->list, &priorityqueue);
 
 	// j) retornem el PID del fill
 
@@ -234,7 +235,9 @@ int sys_put_screen(char * s){
 int sys_set_fps(int fps) {
 	if(fps == -1) {
 		spf_ticks = -1;
+		current()->nice = 1;
 	} else {
+		current()->nice = 0;
 		gfps = fps;
 		spf_ticks =18;
 		spf_sem = fps;
