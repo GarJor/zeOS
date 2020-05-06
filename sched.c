@@ -18,14 +18,15 @@ struct task_struct *list_head_to_task_struct(struct list_head *l)
 #endif
 
 extern struct list_head blocked;
-
+extern int sys_put_screen(char *s);
 //int spf_quantum;   //es la variable que diu quants ticks han de passar entre cada put screen
 
 int quantum_ticks;
 int spf_ticks; //Per contar els segons (18 tics en cada segon).
 int spf_sem;   //variable que es decrementa segons els frames que s'han mostrat
 int gfps; //variable que conté els fps a mostrar
-struct list_head freequeue, readyqueue;
+char *spf_last_screen;
+struct list_head freequeue, readyqueue, priorityqueue;
 struct task_struct * idle_task;
 void writeMSR(int index_MSR, int value_MSR);
 
@@ -115,6 +116,7 @@ void init_sched()
 {
 	INIT_LIST_HEAD( &freequeue );
 	INIT_LIST_HEAD( &readyqueue );
+	INIT_LIST_HEAD( &priorityqueue );
 	quantum_ticks = 0;
 	spf_ticks = -1;
 	spf_sem = -1;
@@ -160,10 +162,17 @@ void update_process_state_rr (struct task_struct *t, struct list_head *dst_queue
 }
 
 void sched_next_rr(void){
-	struct list_head *list_nou = list_first(&readyqueue);
+	struct list_head *list_nou;
+	int nice = current()-> nice;
+	if (nice) { // nice=1  --> Proces de prioritat baixa
+		if (list_empty(&priorityqueue)) list_nou = list_first(&readyqueue);
+		else list_nou = list_first(&priorityqueue);
+	}
+	else 	list_nou = list_first(&readyqueue);// nice=0 --> process de prioritat alta
 	list_del(list_nou);
 	union task_union *nova_taska = (union task_union *) list_head_to_task_struct (list_nou);
-	quantum_ticks = ((struct task_struct *)nova_taska)->quantum; // nova taska == nou quantum
+	int final_quantum = ((struct task_struct *)nova_taska)->quantum; // nova taska == nou quantum
+	quantum_ticks = (nice)? final_quantum: final_quantum * 6; 
 	task_switch(nova_taska); 
 }
 
@@ -172,7 +181,9 @@ void schedule (void)
 	update_sched_data_rr();
 	if (needs_sched_rr())
 	{
-		update_process_state_rr(current(), &readyqueue);   //temps esgotat
+		struct task_struct *curr = current();
+		if(curr->nice)	update_process_state_rr(curr, &readyqueue);   //temps esgotat
+		else update_process_state_rr(curr, &priorityqueue);
 		sched_next_rr();
 	}
 }
@@ -183,6 +194,7 @@ void schedule_fps(void){
 		if (spf_ticks <= 0){
 			spf_ticks = 18;
 			spf_sem = gfps;
+			sys_put_screen(spf_last_screen); 
 		}
 	}
 }

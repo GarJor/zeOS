@@ -33,6 +33,7 @@ extern int spf_sem;
 extern int	gfps;
 extern int	spf_ticks;
 extern struct list_head  freequeue, readyqueue;
+extern char *spf_last_screen;
 int nextPID = 2; // COM? i ON?
 int check_fd(int fd, int permissions)
 {
@@ -226,12 +227,17 @@ int sys_put_screen(char * s){
 		--spf_sem;
 		return 1;
 	}
+	spf_last_screen = s;
 	return 0;
 }
 
 int sys_set_fps(int fps) {
-	gfps = fps;
-	spf_ticks =18;
-	spf_sem = fps;
+	if(fps == -1) {
+		spf_ticks = -1;
+	} else {
+		gfps = fps;
+		spf_ticks =18;
+		spf_sem = fps;
+	}
 	return 1;
 }

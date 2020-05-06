@@ -22,6 +22,7 @@ struct task_struct {
 	unsigned long *kernel_esp;
 	unsigned long quantum; //per la planificacio dels processos
 	struct stats estat;
+	int nice; // 0 => prioritat ; 1 => no prioritat
 };
 
 union task_union {

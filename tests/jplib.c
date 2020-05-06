@@ -53,6 +53,7 @@ void test_fps() {
 	char scen[25][80];
 	flush_screen(scen);
 	omple("TEST 3: Calcul de fps",&scen[3][3]);
+	set_fps(20);
 	int max = 10000;
 	int i = 0;
 	int j = 0;
@@ -61,20 +62,15 @@ void test_fps() {
 		j += put_screen((char *)scen);
 		++i;
 	}
+	set_fps(-1);
 	int segs = (gettime()-ini) / 18;
 	int res = (segs == 0)? j : j/segs; 
 	itoa(res,&scen[5][9]);
 	omple("fps", &scen[5][17]);
-//	put_screen((char *)scen); // hauriem de guardar lultim putscreen per printarlo al final perk sino perdem el estat del final
-	write(1,&scen[5][9],11);
+	put_screen((char *)scen); // hauriem de guardar lultim putscreen per printarlo al final perk sino perdem el estat del final
+//	write(1,&scen[5][9],11);
 }
 
-void test_set_fps() {
-
-	set_fps(20);
-	test_fps();
-
-}
 
 void test_joc() {
 	char buff[] = "TEST 2: provant la crida a sistema get_key() i put_screen()";
@@ -143,7 +139,7 @@ void test_get_key(){
 void jp_all() {
 	test_get_key(); // 1
 	test_joc(); // 2
-	test_set_fps(); // 3
+	test_fps(); // 3
 }
 
 void jp_rank(int ini, int fin){
@@ -158,7 +154,7 @@ void jp_rank(int ini, int fin){
 				test_joc();
 				break;
 			case 3:
-				test_set_fps();
+				test_fps();
 				break;
 		}
 
