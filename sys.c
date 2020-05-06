@@ -226,6 +226,7 @@ int sys_put_screen(char * s){
 	if(spf_sem > 0 || spf_ticks == -1){	
 		 print_screen(s);	
 		--spf_sem;
+		spf_last_screen = NULL;
 		return 1;
 	}
 	spf_last_screen = s;

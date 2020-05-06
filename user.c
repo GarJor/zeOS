@@ -14,7 +14,7 @@ int __attribute__ ((__section__(".text.main")))
 
 	//runjp();
 
-	jp_all();	
+	jp_rank(3,3);	
   while(1) 
   {
 //		char a;

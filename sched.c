@@ -195,7 +195,7 @@ void schedule_fps(void){
 		if (spf_ticks <= 0){
 			spf_ticks = 18;
 			spf_sem = gfps;
-			sys_put_screen(spf_last_screen); 
+			if(spf_last_screen != NULL) sys_put_screen(spf_last_screen); 
 		}
 	}
 }
