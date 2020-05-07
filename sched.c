@@ -143,7 +143,7 @@ void update_sched_data_rr (void){
 
 int needs_sched_rr(void){
 	if (quantum_ticks > 0) return 0;
-	if (list_empty(&readyqueue)){  //Si la llista es buida no canviis pero compta trans.
+	if (list_empty(&readyqueue) && list_empty(&priorityqueue)){  //Si la llista es buida no canviis pero compta trans.
 		quantum_ticks = current()->quantum;
 		current()->estat.total_trans++;
 		return 0;
@@ -173,7 +173,7 @@ void sched_next_rr(void){
 	list_del(list_nou);
 	union task_union *nova_taska = (union task_union *) list_head_to_task_struct (list_nou);
 	int final_quantum = ((struct task_struct *)nova_taska)->quantum; // nova taska == nou quantum
-	quantum_ticks = (nice)? final_quantum: final_quantum * 6; 
+	quantum_ticks = (nice)? final_quantum: final_quantum * 5; 
 	task_switch(nova_taska); 
 }
 
