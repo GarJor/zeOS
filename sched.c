@@ -173,7 +173,7 @@ void sched_next_rr(void){
 	list_del(list_nou);
 	union task_union *nova_taska = (union task_union *) list_head_to_task_struct (list_nou);
 	int final_quantum = ((struct task_struct *)nova_taska)->quantum; // nova taska == nou quantum
-	quantum_ticks = (nice)? final_quantum: final_quantum * 5; 
+	quantum_ticks = (!nice)? final_quantum: final_quantum * 5; 
 	task_switch(nova_taska); 
 }
 
