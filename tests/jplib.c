@@ -54,7 +54,7 @@ void test_fps() {
 	flush_screen(scen);
 	omple("TEST 3: Calcul de fps",&scen[3][3]);
 	procrea(1);
-	set_fps(70);
+	set_fps(30);
 	int max = 10000;
 	int i = 0;
 	int j = 0;
@@ -64,9 +64,12 @@ void test_fps() {
 		++i;
 	}
 	set_fps(-1);
-	int segs = (gettime()-ini) / 18;
+	float segs = (gettime()-ini) /  18;
 	int res = (segs == 0)? j : j/segs; 
 	itoa(res,&scen[5][9]);
+	itoa(segs,&scen[6][9]);
+	itoa(j,&scen[7][9]);
+
 	omple("fps", &scen[5][17]);
 	put_screen((char *)scen); // hauriem de guardar lultim putscreen per printarlo al final perk sino perdem el estat del final
 //	write(1,&scen[5][9],11);
