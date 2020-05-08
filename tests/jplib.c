@@ -49,35 +49,49 @@ void procrea(int fills) {
 }
 
 
-void test_fps() {
+int test_fps(int fps) {
 	char scen[25][80];
 	flush_screen(scen);
-	omple("TEST 3: Calcul de fps",&scen[3][3]);
-	procrea(1);
-	set_fps(80);
-	int max = 10000;
-	int i = 0;
-	int j = 0;
-	int ini = gettime();
-	while(i < max){
-		j += put_screen((char *)scen);
-		++i;
+	omple("TEST 3: Comprovacio de set_fps() amb diversos procesos",&scen[3][3]);
+	set_fps(fps);
+	int iter = 0;
+	int res = 0;
+	while(iter < 4){
+		//procrea(iter);
+		int max = 1000;
+		int i = 0;
+		int j = 0;
+		int ini = gettime();
+		while(i < max){
+			j += put_screen((char *)scen);
+			++i;
+		}
+		int spent = gettime()-ini;
+		int segs = spent/18;
+		segs = (segs*18 < spent)? segs+1 : segs; // Arrodonim cap amunt
+		res = (segs == 0)? j : j/segs; 
+		res = (res*segs < j)? res+1 : res; // Arrodonim cap amunt 
+		if ( res != fps) break; 
+		iter += 2;
 	}
 	set_fps(-1);
-	int currtime = gettime()-ini;
-	int res = (currtime == 0)? j : (j*18)/currtime; 
-	itoa(res,&scen[5][9]);
-	itoa(currtime,&scen[6][9]);
-	itoa(j,&scen[7][9]);
+	if(iter < 6) {
 
-	omple("fps", &scen[5][17]);
-	put_screen((char *)scen); // hauriem de guardar lultim putscreen per printarlo al final perk sino perdem el estat del final
-//	write(1,&scen[5][9],11);
+		char buff3[] = "TEST 3: FAIL (/)\n";
+		write(1,buff3,strlen(buff3));
+		return 0;
+	}
+	else {
+		char buff3[] = "TEST 3: OK\n";
+		write(1,buff3,strlen(buff3));
+		return 1;
+
+	}
 }
 
 
 void test_joc() {
-	char buff[] = "TEST 2: provant la crida a sistema get_key() i put_screen()";
+	char buff[] = "TEST 0: provant la crida a sistema get_key() i put_screen()\n";
 	write(1,buff,strlen(buff));
 	char scen[25][80];
 	flush_screen(scen);
@@ -118,50 +132,79 @@ void test_joc() {
 	  put_screen((char *)scen);
 		
 	}
+	char buff1[] = "TEST 0: ? (Creus que va be?) \n";
+	write(1,buff1,strlen(buff1));
+	flush_screen(scen);
+	put_screen((char *)scen);
+
 }
 
-void test_get_key(){
-	char buff[] = "\nTEST 1: provant la crida a sistema get_key()";
+int test_get_key(){
+	char buff[] = "\nTEST 2: provant la crida a sistema get_key()";
 	write(1,buff,strlen(buff));
-	char buff2[] = "\nEscriu tecles si us plau en els propers 60 segons del zeOS. S'han de mostrar les ultimes 8 premudes.\n";
+	char buff2[] = "\nEscriu en ordre els seguents caracters: q w e r t y u i o p\n";
 	write(1,buff2,strlen(buff2));
 	unsigned long t = gettime();
 	while(gettime() <= t+1080);
-	char buff3[] = "Les ultimes 8 lletres que has premut:\n";
-	write(1,buff3,strlen(buff3));
-	int i = 8;
-	while(i-->0){
+	char check[8] = "opertyui";
+	int i = 0;
+
+	while(i<8){
 		char a;
 		get_key(&a);
-		write(1,&a,1);
-		write(1," ",1);
-    
+   	if ( a != check[i]) break; 
+		++i;
 	}	
-		write(1,"\n",1);
+	if ( i < 8 ) { // No passa el test
+		char buff3[] = "TEST 2: FAIL (segur que has premut els caracters indicats?)\n";
+		write(1,buff3,strlen(buff3));
+		return 0;
+
+	} else // passa el test
+	{
+
+		char buff3[] = "TEST 2: OK\n";
+		write(1,buff3,strlen(buff3));
+		return 1;
+	}
 }
 
 void jp_all() {
-	test_get_key(); // 1
-	test_joc(); // 2
-	test_fps(); // 3
+	int total = 0;
+	test_joc(); // 1
+	total += test_get_key(); // 2
+	total += test_fps(70); // 3
 }
 
 void jp_rank(int ini, int fin){
-
+	int unknown = 0;
+	int total = fin - ini +1;
+	int failed = total; 
 	for(int i = ini ; i <= fin; i++) {
 
 		switch(i) {
+			case 0:
+				test_joc();
+				++unknown;
+				--failed;
+				break;
 			case 1:
-				test_get_key();
+				failed -= test_get_key();
 				break;
 			case 2:
-				test_joc();
-				break;
-			case 3:
-				test_fps();
+				failed -= test_fps(70);
 				break;
 		}
 
 
 	} 
+	char scen[25][80];
+	flush_screen(scen);
+	put_screen((char *)scen);
+	char res[] = "\n\nFAILED TESTS:   \nUNKNOWN RESULTS:   \nTOTAL:   \n";
+	itoa(failed, &res[16]);
+	itoa(unknown, &res[36]);
+	itoa(total, &res[46]);
+	write(1, res,48);
+
 }
