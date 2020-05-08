@@ -25,4 +25,4 @@ No s'han implementat encara
 ### Nivell 3
 **3. Prova de màxim d'fps:** Aquest test vol demostrar la velocitat màxima que poden assolir els fps. Aquesta es mostrarà per pantalla un cop efectuat el càlcul. El resultat sempre és correcte.
 
-**4. Prova de la garantia al regular els fps:** El procés efectuarà el mateix càlcul que el joc anterior però en aquest cas compartirà la cpu amb 0, 2 i 6 processos més. El test és vàlid si el nombre d'fps calculat és igual al nombre d'fps que l'usuari vol garantir. Aquest nombre d'fps a garantir pot ser modificat canviant la constant FPS. Per a un test correcte aquest valor no hauria de ser major a 223. 
+**4. Prova de la garantia al regular els fps:** El procés efectuarà el mateix càlcul que el joc anterior però en aquest cas compartirà la cpu amb el nombre de processos especificat per la constant CHILS que definirà l'usuari que vulgui fer el test. El test és vàlid si el nombre d'fps calculat és igual al nombre d'fps que l'usuari vol garantir. Aquest nombre d'fps a garantir pot ser modificat canviant la constant FPS. Per a un test correcte aquest valor no hauria de ser major a 223. 
