@@ -20,7 +20,7 @@ ENTRY (sys_call_table)
 	.long sys_get_key//15
 	.long sys_put_screen//16
 	.long sys_set_fps//17
-	.long sys_ni_syscall//18
+	.long sys_fflush//18
 	.long sys_ni_syscall//19
 	.long sys_getpid//20
 	.long sys_ni_syscall//21

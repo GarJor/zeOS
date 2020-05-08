@@ -245,3 +245,8 @@ int sys_set_fps(int fps) {
 	}
 	return 1;
 }
+
+int sys_fflush() {
+	circular_init(&keyboard_buffer);
+	return 1;
+}
