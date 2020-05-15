@@ -344,3 +344,42 @@ return_set_fps:
 no_error_set_fps:    //he d'execurtar sempre aixo en quaslevol cas per sortir de la rutina.  
 	popl %ebp
 	ret
+
+
+ENTRY(sbrk)
+	pushl %ebp
+	movl %esp, %ebp
+	//syscall ID
+	movl $19, %eax
+	//empilar registres pel retorn (aquests cal guardarlos quan es fa un sysenter)
+	pushl %ecx
+	pushl %edx
+	pushl %ebx
+//paràmetres
+	movl 8(%ebp), %ebx
+	//guardem la etiqueta de retorn
+	push $return_sbrk
+	//nou enllacç dinamic
+	pushl %ebp
+	movl %esp, %ebp
+	sysenter
+return_sbrk:
+	//restaurem enllaç dinamic
+	popl %ebp
+	//elimino l'adreça de retorn
+	addl $4, %esp
+	//restauro registres
+	popl %ebx
+	popl %edx
+	popl %ecx
+	//comporovo que no hi hagi errors
+	cmpl $0, %eax
+	jge no_error_sbrk //salto a la resta de la rutina
+	//tracto l'error
+	negl %eax
+	movl %eax, errno
+	movl $-1, %eax
+no_error_sbrk:    //he d'execurtar sempre aixo en quaslevol cas per sortir de la rutina.  
+	popl %ebp
+	ret
+

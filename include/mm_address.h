@@ -19,11 +19,12 @@
 #define KERNEL_START     0x10000
 #define L_USER_START        0x100000
 #define PH_USER_START       0x100000
+#define L_HEAP_START		L_USER_START+(NUM_PAG_CODE+NUM_PAG_DATA)*PAG_SIZE  //principi del heap
 #define USER_ESP	L_USER_START+(NUM_PAG_CODE+NUM_PAG_DATA)*0x1000-16
-
+#define PAG_HEAP(brk) ((brk-L_HEAP_START)>>12)  //a quina pag del heap es troba brk? 
 #define USER_FIRST_PAGE	(L_USER_START>>12)
-
 #define PH_PAGE(x) (x>>12)
+
 
 #endif
 

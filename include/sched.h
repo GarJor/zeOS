@@ -23,6 +23,7 @@ struct task_struct {
 	unsigned long quantum; //per la planificacio dels processos
 	struct stats estat;
 	int nice; // 0 => prioritat ; 1 => no prioritat
+	int brk; //per la gestio de la mem dinamiq
 };
 
 union task_union {

@@ -250,3 +250,30 @@ int sys_fflush() {
 	circular_init(&keyboard_buffer);
 	return 1;
 }
+
+void* sys_sbrk(int n){
+//mirar quantes pàgines hem de reservar
+	void* brk = current()->brk;
+	int pags = NUM_PAG(brk+n) - NUM_PAG(brk); //quantes pagines reservarem
+	if (pags > 0){
+		//mirar si hi ha espai o no?
+		int frames[pags];
+		int i;
+		for (i = 0; i < pags; i++){
+			frames[i] = alloc_frame();
+			if (frames[i]<0){
+				for (int j = 0; j < i; j++)
+					free_frame(frames[j]);
+				return (void*) -ENOMEM;
+			}	
+		}
+		for (i = 0; i < pags; i++){ //ATENCIO REPASSAR AIXO. ESTA MALAMENT. ESTEM SOBREESCRIBINT EL HEAP
+			set_ss_pag(get_PT(current()), L_HEAP_START+PAG_HEAP(brk)+i, frame[i]);
+		}
+	} else if (pags < 0){  //cal restart pags
+		//mirar que no ens estiguem passant borrant del L_HEAP_START
+		//desalocatar les pagines 
+	}
+	current()->brk = (brk+n < L_HEAP_START)? L_HEAP_START : brk+n;
+	return brk; //el d'abans, el de sempre
+}
