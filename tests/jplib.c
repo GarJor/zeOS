@@ -143,6 +143,7 @@ int test_max_fps() {
 }
 
 void test_joc() {
+	fflush();
 	char buff[] = "\nTEST 1: provant la crida a sistema get_key() i put_screen()\n";
 	write(1,buff,strlen(buff));
 	char scen[25][80];
@@ -192,6 +193,7 @@ void test_joc() {
 }
 
 int test_get_key(){
+	fflush();
 	char buff[] = "TEST 2: provant la crida a sistema get_key()";
 	write(1,buff,strlen(buff));
 	char buff2[] = "\nEscriu en ordre els seguents caracters: q w e r t y u i o p\n";
@@ -228,6 +230,7 @@ void jp_all() {
 
 
 	test_joc(); // 0 unkown
+	--failed;
 	failed -= test_get_key(); // 1
 	failed -= test_max_fps();
 	failed -= test_fps(FPS, 0); // 3
