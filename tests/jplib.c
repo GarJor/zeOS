@@ -1,5 +1,9 @@
-#define TOTAL 1f
 #include <libc.h>
+
+
+#define NTESTS 5
+#define FPS 70
+#define CHILDS 7
 
 
 void flush_screen(char scen[25][80]) {
@@ -49,15 +53,21 @@ void procrea(int fills) {
 }
 
 
-int test_fps(int fps) {
+int test_fps(int fps, int fills) {
 	char scen[25][80];
 	flush_screen(scen);
-	omple("TEST 3: Comprovacio de set_fps() amb diversos procesos",&scen[3][3]);
-	set_fps(fps);
+	if( fills > 0) {
+		omple("TEST 5: Comprovacio de set_fps() amb diversos procesos\n",&scen[3][3]);
+		write(1,&scen[3][3],56);	
+	} else {
+		omple("TEST 4: Comprovacio de set_fps()\n",&scen[3][3]);
+		write(1,&scen[3][3],35);	
+	}
 	int iter = 0;
 	int res = 0;
-	while(iter < 4){
-		//procrea(iter);
+	procrea(fills);
+	while(iter < 6){
+		set_fps(fps);
 		int max = 1000;
 		int i = 0;
 		int j = 0;
@@ -75,23 +85,66 @@ int test_fps(int fps) {
 		iter += 2;
 	}
 	set_fps(-1);
+	
 	if(iter < 6) {
 
-		char buff3[] = "TEST 3: FAIL (/)\n";
-		write(1,buff3,strlen(buff3));
+		if( fills > 0) {
+			char buff3[] = "TEST 5: FAIL (get:     , expected:     )\n";
+			itoa(res , &buff3[19]);
+			itoa(fps , &buff3[35]);
+			write(1,buff3,42);
+		} else {
+			char buff3[] = "TEST 4: FAIL (get:     , expected:     )\n";
+			itoa(res , &buff3[19]);
+			itoa(fps , &buff3[35]);
+			write(1,buff3,42);
+		}
 		return 0;
 	}
 	else {
-		char buff3[] = "TEST 3: OK\n";
-		write(1,buff3,strlen(buff3));
+		if( fills > 0) {
+			char buff3[] = "TEST 5: OK (get:     , expected:     )\n";
+			itoa(res , &buff3[17]);
+			itoa(fps , &buff3[33]);
+			write(1,buff3,40);
+		} else {
+			char buff3[] = "TEST 4: OK (get:     , expected:     )\n";
+			itoa(res , &buff3[17]);
+			itoa(fps , &buff3[33]);
+			write(1,buff3,40);
+		}
 		return 1;
 
 	}
 }
 
+int test_max_fps() {
+	char scen[25][80];
+	flush_screen(scen);
+	omple("TEST 3: Comprovacio del maxim de fps amb un unic proces\n",&scen[3][3]);
+	write(1,&scen[3][3],strlen(&scen[3][3]));	
+	int max = 10000;
+	int i = 0;
+	int j = 0;
+	int ini = gettime();
+	while(i < max){
+		j += put_screen((char *)scen);
+		++i;
+	}
+	int spent = gettime()-ini;
+	int segs = spent/18;
+	segs = (segs*18 < spent)? segs+1 : segs; // Arrodonim cap amunt
+	int res = (segs == 0)? j : j/segs; 
+	res = (res*segs < j)? res+1 : res; // Arrodonim cap amunt 
+	char buff[] = "TEST 3: OK (get:     )\n";
+	itoa(res , &buff[17]);
+	write(1,buff,24);
+	return 1;
+}
 
 void test_joc() {
-	char buff[] = "TEST 0: provant la crida a sistema get_key() i put_screen()\n";
+	fflush();
+	char buff[] = "\nTEST 1: provant la crida a sistema get_key() i put_screen()\n";
 	write(1,buff,strlen(buff));
 	char scen[25][80];
 	flush_screen(scen);
@@ -132,7 +185,7 @@ void test_joc() {
 	  put_screen((char *)scen);
 		
 	}
-	char buff1[] = "TEST 0: ? (Creus que va be?) \n";
+	char buff1[] = "TEST 1: ? (Creus que va be?) \n";
 	write(1,buff1,strlen(buff1));
 	flush_screen(scen);
 	put_screen((char *)scen);
@@ -140,12 +193,13 @@ void test_joc() {
 }
 
 int test_get_key(){
-	char buff[] = "\nTEST 2: provant la crida a sistema get_key()";
+	fflush();
+	char buff[] = "TEST 2: provant la crida a sistema get_key()";
 	write(1,buff,strlen(buff));
 	char buff2[] = "\nEscriu en ordre els seguents caracters: q w e r t y u i o p\n";
 	write(1,buff2,strlen(buff2));
 	unsigned long t = gettime();
-	while(gettime() <= t+1080);
+	while(gettime() <= t+18*100);
 	char check[8] = "opertyui";
 	int i = 0;
 
@@ -170,10 +224,25 @@ int test_get_key(){
 }
 
 void jp_all() {
-	int total = 0;
-	test_joc(); // 1
-	total += test_get_key(); // 2
-	total += test_fps(70); // 3
+	int total = NTESTS;
+	int failed = total; 
+	int unknown = 1;
+
+
+	test_joc(); // 0 unkown
+	--failed;
+	failed -= test_get_key(); // 1
+	failed -= test_max_fps();
+	failed -= test_fps(FPS, 0); // 3
+	failed -= test_fps(FPS, CHILDS); // 4
+
+
+
+	char res[] = "\n\nFAILED TESTS:   \nUNKNOWN RESULTS:   \nTOTAL:   \n";
+	itoa(failed, &res[16]);
+	itoa(unknown, &res[36]);
+	itoa(total, &res[46]);
+	write(1, res,48);
 }
 
 void jp_rank(int ini, int fin){
@@ -183,16 +252,22 @@ void jp_rank(int ini, int fin){
 	for(int i = ini ; i <= fin; i++) {
 
 		switch(i) {
-			case 0:
+			case 1:
 				test_joc();
 				++unknown;
 				--failed;
 				break;
-			case 1:
+			case 2:
 				failed -= test_get_key();
 				break;
-			case 2:
-				failed -= test_fps(70);
+			case 3:
+				failed -= test_max_fps();
+				break;
+			case 4:
+				failed -= test_fps(FPS, 0);
+				break;
+			case 5:
+				failed -= test_fps(FPS, CHILDS);
 				break;
 		}
 
