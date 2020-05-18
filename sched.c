@@ -100,6 +100,7 @@ void init_task1(void)
 
 	struct task_struct *task1_pcb = list_head_to_task_struct(task_head);
 	task1_pcb->PID=1;	
+	task1_pcb->brk=(void *)L_HEAP_START;
 	set_quantum(task1_pcb,QUANTUM);  //els altres processos l'heredaran
   task1_pcb->nice=1;	
 	allocate_DIR(task1_pcb); // assignem directori al proces

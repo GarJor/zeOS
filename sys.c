@@ -253,8 +253,11 @@ int sys_fflush() {
 
 void* sys_sbrk(int n){
 //mirar quantes pàgines hem de reservar
-	void* brk = current()->brk;
-	int pags = NUM_PAG(brk+n) - NUM_PAG(brk); //quantes pagines reservarem
+	int brk = (int)current()->brk;
+	int current_page = ((brk & 0x0fff) == 0)? PAG_HEAP(brk)-1 : PAG_HEAP(brk); // la pagina on estic ha estat alocatada? 
+	int dst = (PAG_HEAP(brk+n) < 0)? L_HEAP_START : brk+n; // comprovem el parametre de usuari
+	int pags = PAG_HEAP(dst) - current_page; //quantes pagines reservarem
+	
 	if (pags > 0){
 		//mirar si hi ha espai o no?
 		int frames[pags];
@@ -267,13 +270,19 @@ void* sys_sbrk(int n){
 				return (void*) -ENOMEM;
 			}	
 		}
-		for (i = 0; i < pags; i++){ //ATENCIO REPASSAR AIXO. ESTA MALAMENT. ESTEM SOBREESCRIBINT EL HEAP
-			set_ss_pag(get_PT(current()), L_HEAP_START+PAG_HEAP(brk)+i, frame[i]);
+		page_table_entry *pt = get_PT(current()); 	
+		for (i = 1; i <= pags; i++){ //ATENCIO REPASSAR AIXO. ESTA MALAMENT. ESTEM SOBREESCRIBINT EL HEAP
+			set_ss_pag(pt, HEAP_FIRST_PAGE+current_page+i, frames[i-1]);
 		}
 	} else if (pags < 0){  //cal restart pags
-		//mirar que no ens estiguem passant borrant del L_HEAP_START
 		//desalocatar les pagines 
+		int del_pags = (((dst) &  0x0fff) == 0)?  (-1*pags)+1 : -1*pags; // pagina final esta buida tamb, la alliberarem
+		page_table_entry *pt = get_PT(current()); 	
+		for(int i = 0;  i < del_pags; ++i) {
+			del_ss_pag(pt, HEAP_FIRST_PAGE+PAG_HEAP(brk)-i);
+		}
+							
 	}
-	current()->brk = (brk+n < L_HEAP_START)? L_HEAP_START : brk+n;
-	return brk; //el d'abans, el de sempre
+	current()->brk =  (void *)dst;
+	return (void *)brk; //el d'abans, el de sempre
 }
