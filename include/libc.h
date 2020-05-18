@@ -30,7 +30,15 @@ int put_screen(char *s);
 
 int set_fps(int fps);
 
+int fflush();
+
+void* sbrk (int increment);
+
 void perror(void);
+
+void* get_scenario();
+
+void del_scenario();  //borra l'ultim.
 
 #endif  /* __LIBC_H__ */
 

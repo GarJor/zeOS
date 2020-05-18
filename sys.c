@@ -67,16 +67,18 @@ int sys_fork()
 	list_del(free_head);
 	struct task_struct * child_task = list_head_to_task_struct(free_head); 
 	
-	// b) copiem data del pare al fill
+	// b) copiem pcb del pare al fill
 	copy_data(current(), child_task, sizeof(union task_union));
 
 	// c) inicialitzem el directori
 	allocate_DIR(child_task);
 
 	// d) cerquem pagines fisiques per mapejar amb les logiques
-	int frames[NUM_PAG_DATA];
+	int brk = (int) current()->brk;
+	int NUM_PAG_DATA_HEAP = NUM_PAG_DATA + (brk & 0x0fff)? PAG_HEAP(brk) : PAG_HEAP(brk) - 1; 
+	int frames[NUM_PAG_DATA_HEAP];   //cal afegir les pags del heap
 	int i;
-	for (i=0; i<NUM_PAG_DATA; i++) 
+	for (i=0; i<NUM_PAG_DATA_HEAP; i++) 
 	{
 		frames[i] = alloc_frame();
 		if(frames[i] < 0) 
@@ -107,19 +109,19 @@ int sys_fork()
 	}
 	
 	// 	>> B) assignem les noves pagines fisiques a les adresses logiques del proces fill 
-	for(i=0; i < NUM_PAG_DATA; i++) 
+	for(i=0; i < NUM_PAG_DATA_HEAP; i++) 
 	{
 		set_ss_pag(child_PT, i+PAG_LOG_INIT_DATA, frames[i]);
 
 	}
 
 	// > ii) ampliem lespai d'adresses del pare per poder accedir a les pagines del fill per copiar data+stack
-	for(i=0; i < NUM_PAG_DATA; i++) 
+	for(i=0; i < NUM_PAG_DATA_HEAP; i++) 
 	{
 		unsigned int page = i+PAG_LOG_INIT_DATA;
-		set_ss_pag(parent_PT, page+NUM_PAG_DATA, frames[i]);
-		copy_data( (unsigned long *)(page*PAGE_SIZE), (unsigned long *)((page+NUM_PAG_DATA)*PAGE_SIZE) , PAGE_SIZE);
-		del_ss_pag(parent_PT, page+NUM_PAG_DATA);
+		set_ss_pag(parent_PT, page+NUM_PAG_DATA_HEAP, frames[i]);
+		copy_data( (unsigned long *)(page*PAGE_SIZE), (unsigned long *)((page+NUM_PAG_DATA_HEAP)*PAGE_SIZE) , PAGE_SIZE);
+		del_ss_pag(parent_PT, page+NUM_PAG_DATA_HEAP);
 		
 
 	}
@@ -155,7 +157,9 @@ void sys_exit()
 {  
 	struct task_struct *task = current();
 	page_table_entry *task_PT = get_PT(task);
-	for(int i =0; i < NUM_PAG_DATA ; ++i)
+	int brk = (int) current()->brk;
+	int NUM_PAG_DATA_HEAP = NUM_PAG_DATA + (brk & 0x0fff)? PAG_HEAP(brk) : PAG_HEAP(brk) - 1; 
+	for(int i =0; i < NUM_PAG_DATA_HEAP ; ++i)
 	{
 		free_frame(get_frame(task_PT,i+PAG_LOG_INIT_DATA));
 		del_ss_pag(task_PT, i+PAG_LOG_INIT_DATA);
@@ -271,7 +275,7 @@ void* sys_sbrk(int n){
 			}	
 		}
 		page_table_entry *pt = get_PT(current()); 	
-		for (i = 1; i <= pags; i++){ //ATENCIO REPASSAR AIXO. ESTA MALAMENT. ESTEM SOBREESCRIBINT EL HEAP
+		for (i = 1; i <= pags; i++){ 
 			set_ss_pag(pt, HEAP_FIRST_PAGE+current_page+i, frames[i-1]);
 		}
 	} else if (pags < 0){  //cal restart pags

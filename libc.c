@@ -193,3 +193,13 @@ void perror (void) {
 	char * buff = etos[errno - 1]; //no hi ha errno 0. Aquest map esta a errno.h
 	write(1, buff, strlen(buff));
 }
+
+
+void* get_scenario(){
+	return sbrk(25*80);
+}
+
+void del_scenario(){
+	sbrk((-1)*25*80);
+}
+
