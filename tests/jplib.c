@@ -1,5 +1,5 @@
 #include <libc.h>
-
+#include <mm.h>
 
 #define NTESTS 5
 #define FPS 70
@@ -65,7 +65,7 @@ int test_fps(int fps, int fills) {
 	}
 	int iter = 0;
 	int res = 0;
-	procrea(fills);
+//	procrea(fills);
 	while(iter < 6){
 		set_fps(fps);
 		int max = 1000;
@@ -223,6 +223,55 @@ int test_get_key(){
 	}
 }
 
+int test_fflush(){
+	char buff[] = "TEST 6: provant la crida a sistema fflush()";
+	write(1,buff,strlen(buff));
+	char buff2[] = "\nEscriu alguns caracters si us plau.\n";
+	write(1,buff2,strlen(buff2));
+	unsigned long t = gettime();
+	while(gettime() <= t+18*50);
+	fflush();
+	char a;
+	get_key(&a);
+	if (a != '\x00'){
+		char buff3[] = "TEST 6: FAIL\n";
+		write(1,buff3,strlen(buff3));
+		return 0;
+	} else {
+		char buff3[] = "TEST 6: OK\n";
+		write(1,buff3,strlen(buff3));
+		return 1;
+	}
+}
+
+int test_sbrk(){	
+	char buff[] = "TEST 7: provant la crida a sistema sbrk()";
+	write(1,buff,strlen(buff));
+	unsigned long a = (unsigned long)sbrk(-4);
+	if (a || (unsigned long)sbrk(0) != L_HEAP_START){	
+		char buff1[] = "TEST 6: FAIL\n";
+		write(1,buff1,strlen(buff1));
+		return 0;
+	}
+	unsigned int brk = (unsigned long)sbrk(200);
+	a = (unsigned long)sbrk(0);
+	if (brk+200 != a){
+		char buff2[] = "TEST 6: FAIL\n";
+		write(1,buff2,strlen(buff2));
+		return 0;
+	}
+	a = (unsigned long)sbrk(-2000);
+	if (a != L_HEAP_START){	
+		char buff3[] = "TEST 6: FAIL\n";
+		write(1,buff3,strlen(buff3));
+		return 0;
+	}
+		char buff4[] = "TEST 6: OK\n";
+		write(1,buff4,strlen(buff4));
+		return 1;
+	
+}
+
 void jp_all() {
 	int total = NTESTS;
 	int failed = total; 
@@ -235,6 +284,8 @@ void jp_all() {
 	failed -= test_max_fps();
 	failed -= test_fps(FPS, 0); // 3
 	failed -= test_fps(FPS, CHILDS); // 4
+	failed -= test_fflush(); //5
+	failed -= test_sbrk(); //6
 
 
 
@@ -269,6 +320,16 @@ void jp_rank(int ini, int fin){
 			case 5:
 				failed -= test_fps(FPS, CHILDS);
 				break;
+			case 6:
+				failed -= test_fflush();
+				break;
+			case 7:
+				failed -= test_sbrk();
+				break;
+			//case 8:
+			//	failed -= test_fps(FPS, CHILDS);
+			//	break;
+
 		}
 
 
