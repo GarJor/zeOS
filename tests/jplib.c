@@ -65,7 +65,7 @@ int test_fps(int fps, int fills) {
 	}
 	int iter = 0;
 	int res = 0;
-//	procrea(fills);
+	procrea(fills);
 	while(iter < 6){
 		set_fps(fps);
 		int max = 1000;
@@ -278,14 +278,14 @@ void jp_all() {
 	int unknown = 1;
 
 
-	test_joc(); // 0 unkown
-	--failed;
-	failed -= test_get_key(); // 1
-	failed -= test_max_fps();
-	failed -= test_fps(FPS, 0); // 3
+	//test_joc(); // 0 unkown
+	//--failed;
+	//failed -= test_get_key(); // 1
+	//failed -= test_max_fps();
+	//failed -= test_fps(FPS, 0); // 3
 	failed -= test_fps(FPS, CHILDS); // 4
-	failed -= test_fflush(); //5
-	failed -= test_sbrk(); //6
+	//failed -= test_fflush(); //5
+	//failed -= test_sbrk(); //6
 
 
 

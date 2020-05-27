@@ -220,6 +220,7 @@ int sys_get_stats(int pid, struct stats *st){
 }
 
 int sys_get_key(char *c) {
+	if (c == NULL) return NULL;
 	char aux;
 	int ret = circular_read(&keyboard_buffer, &aux);
 	copy_to_user(&aux, c, 1);
@@ -227,6 +228,7 @@ int sys_get_key(char *c) {
 }
 
 int sys_put_screen(char * s){		
+	if (s == NULL) return 0;
 	if(spf_sem > 0 || spf_ticks == -1){	
 		 print_screen(s);	
 		--spf_sem;
