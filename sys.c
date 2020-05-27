@@ -255,38 +255,108 @@ int sys_fflush() {
 	return 1;
 }
 
-void* sys_sbrk(int n){
-//mirar quantes pàgines hem de reservar
-	int brk = (int)current()->brk;
-	int current_page = ((brk & 0x0fff) == 0)? PAG_HEAP(brk)-1 : PAG_HEAP(brk); // la pagina on estic ha estat alocatada? 
-	int dst = (PAG_HEAP(brk+n) < 0)? L_HEAP_START : brk+n; // comprovem el parametre de usuari
-	int pags = PAG_HEAP(dst) - current_page; //quantes pagines reservarem
-	
-	if (pags > 0){
-		//mirar si hi ha espai o no?
-		int frames[pags];
-		int i;
-		for (i = 0; i < pags; i++){
-			frames[i] = alloc_frame();
-			if (frames[i]<0){
-				for (int j = 0; j < i; j++)
-					free_frame(frames[j]);
-				return (void*) -ENOMEM;
-			}	
-		}
-		page_table_entry *pt = get_PT(current()); 	
-		for (i = 1; i <= pags; i++){ 
-			set_ss_pag(pt, HEAP_FIRST_PAGE+current_page+i, frames[i-1]);
-		}
-	} else if (pags < 0){  //cal restart pags
-		//desalocatar les pagines 
-		int del_pags = (((dst) &  0x0fff) == 0)?  (-1*pags)+1 : -1*pags; // pagina final esta buida tamb, la alliberarem
-		page_table_entry *pt = get_PT(current()); 	
-		for(int i = 0;  i < del_pags; ++i) {
-			del_ss_pag(pt, HEAP_FIRST_PAGE+PAG_HEAP(brk)-i);
-		}
-							
-	}
-	current()->brk =  (void *)dst;
-	return (void *)brk; //el d'abans, el de sempre
+//void* sys_sbrk(int n){
+////mirar quantes pàgines hem de reservar
+//	int brk = (int)current()->brk;
+//	int current_page = ((brk & 0x0fff) == 0)? PAG_HEAP(brk)-1 : PAG_HEAP(brk); // la pagina on estic ha estat alocatada? 
+//	int dst = (PAG_HEAP(brk+n) < 0)? L_HEAP_START : brk+n; // comprovem el parametre de usuari
+//	int pags = PAG_HEAP(dst) - current_page; //quantes pagines reservarem
+//	
+//	if (pags > 0){
+//		//mirar si hi ha espai o no?
+//		int frames[pags];
+//		int i;
+//		for (i = 0; i < pags; i++){
+//			frames[i] = alloc_frame();
+//			if (frames[i]<0){
+//				for (int j = 0; j < i; j++)
+//					free_frame(frames[j]);
+//				return (void*) -ENOMEM;
+//			}	
+//		}
+//		page_table_entry *pt = get_PT(current()); 	
+//		for (i = 1; i <= pags; i++){ 
+//			set_ss_pag(pt, HEAP_FIRST_PAGE+current_page+i, frames[i-1]);
+//		}
+//	} else if (pags < 0){  //cal restart pags
+//		//desalocatar les pagines 
+//		int del_pags = (((dst) &  0x0fff) == 0)?  (-1*pags)+1 : -1*pags; // pagina final esta buida tamb, la alliberarem
+//		page_table_entry *pt = get_PT(current()); 	
+//		for(int i = 0;  i < del_pags; ++i) {
+//			del_ss_pag(pt, HEAP_FIRST_PAGE+PAG_HEAP(brk)-i);
+//		}
+//							
+//	}
+//	current()->brk =  (void *)dst;
+//	return (void *)brk; //el d'abans, el de sempre
+//}
+
+int inici_pag(unsigned long brk){     //mira si estic alineat a pàgina
+	return (brk & 0x0fff) == 0;
 }
+
+void* sys_sbrk(int n){
+	int ini_pag;
+	page_table_entry *pt = get_PT(current());
+	unsigned long brk = (unsigned long) current()->brk;
+	if (brk == L_HEAP_START && n < 0){     //No es pot permetre, no hi ha res reservat.
+		return NULL;  //uala que fem aqui?
+	}
+	int pags;
+	if (n > 0){
+		//fem el calcul de pagines
+		pags = PAG_HEAP(brk+n) - PAG_HEAP(brk);
+		ini_pag = inici_pag(brk);
+		if (ini_pag)   //ens cal una pagineta més
+			pags++;
+		int frames[pags];
+    int i;
+    	for (i = 0; i < pags; i++){
+      	frames[i] = alloc_frame();
+        if (frames[i]<0){
+        	for (int j = 0; j < i; j++)
+          	free_frame(frames[j]);
+        	return (void*) -ENOMEM;
+      }       
+    }
+		for (i = 0; i < pags; i++){ 
+    	set_ss_pag(pt, HEAP_FIRST_PAGE+PAG_HEAP(brk)+i+(!ini_pag), frames[i]);
+    }
+		brk = brk + n;
+	} else if (n < 0) {   //toca borral
+		unsigned int dest = (brk+n < L_HEAP_START)? L_HEAP_START : brk+n;
+		ini_pag = inici_pag(dest);      //Estaré a inici de pàgina?
+		pags = PAG_HEAP(brk)-PAG_HEAP(dest);
+		if (ini_pag)
+			++pags;
+		int i;	
+		for (i = 0; i < pags; i++){ 
+    	del_ss_pag(pt, HEAP_FIRST_PAGE+PAG_HEAP(dest)+i+(!ini_pag));
+    }
+		brk = dest;
+	}
+	current()->brk= (void *) brk;
+	return (void *) brk;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
