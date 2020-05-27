@@ -75,7 +75,8 @@ int sys_fork()
 
 	// d) cerquem pagines fisiques per mapejar amb les logiques
 	int brk = (int) current()->brk;
-	int NUM_PAG_DATA_HEAP = NUM_PAG_DATA + (brk & 0x0fff)? PAG_HEAP(brk) : PAG_HEAP(brk) - 1; 
+	int heap =  (brk & 0x0fff)? PAG_HEAP(brk) + 1 : PAG_HEAP(brk); 
+	int NUM_PAG_DATA_HEAP = NUM_PAG_DATA + heap;
 	int frames[NUM_PAG_DATA_HEAP];   //cal afegir les pags del heap
 	int i;
 	for (i=0; i<NUM_PAG_DATA_HEAP; i++) 

@@ -99,6 +99,8 @@ int test_fps(int fps, int fills) {
 			itoa(fps , &buff3[35]);
 			write(1,buff3,42);
 		}
+
+		flush_screen(scen);
 		return 0;
 	}
 	else {
@@ -113,6 +115,7 @@ int test_fps(int fps, int fills) {
 			itoa(fps , &buff3[33]);
 			write(1,buff3,40);
 		}
+		flush_screen(scen);
 		return 1;
 
 	}
@@ -278,14 +281,14 @@ void jp_all() {
 	int unknown = 1;
 
 
-	//test_joc(); // 0 unkown
-	//--failed;
-	//failed -= test_get_key(); // 1
-	//failed -= test_max_fps();
-	//failed -= test_fps(FPS, 0); // 3
+	test_joc(); // 0 unkown
+	--failed;
+	failed -= test_get_key(); // 1
+	failed -= test_max_fps();
+	failed -= test_fps(FPS, 0); // 3
 	failed -= test_fps(FPS, CHILDS); // 4
-	//failed -= test_fflush(); //5
-	//failed -= test_sbrk(); //6
+	failed -= test_fflush(); //5
+	failed -= test_sbrk(); //6
 
 
 
