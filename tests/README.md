@@ -28,3 +28,9 @@ No s'han implementat encara
 **4. Prova de la garantia al regular els fps sense processos:** El test pretén provar si el sistema és capaç de reduir el nombre d'fps a un valor donat. El resultat serà correcte si el nombre d'fps calculat és igual al valor donat. Aquest nombre pot ser modificat canviant la constant FPS. Per a un test correcte aquest valor no hauria de ser major a 275. 
 
 **5. Prova de la garantia al regular els fps amb processos:** El procés efectuarà el mateix càlcul que el joc anterior però en aquest cas compartirà la cpu amb el nombre de processos especificat per la constant CHILS que definirà l'usuari que vulgui fer el test. El test és vàlid si el nombre d'fps calculat és igual al nombre d'fps que l'usuari vol garantir. 
+
+**6. Prova d'fflush():** El test s'usa per comprovar que la crida a sistems _fflush()_ està buidant correctament el buffer del teclar. Per això omplirem el buffer i després d'fflush() mirarem que estigui buit realment.
+
+**7. Prova sbrk():** El test vol comprovar que es fa una correcta gestió de la memòria dinàmica. Per això es farà primer un _sbrk_ amb un paràmetre negatiu per veure que s'ha tractat correctament el cas en el que l'usuari allibera més memòria de la que ha reservat (cap byte en aquest cas). Posteriorment es fan proves reservant i alliberant espais i comprovant que els punters retornin el valor que toca. 
+
+ 
