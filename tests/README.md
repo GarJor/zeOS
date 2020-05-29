@@ -33,4 +33,6 @@ No s'han implementat encara
 
 **7. Prova sbrk():** El test vol comprovar que es fa una correcta gestió de la memòria dinàmica. Per això es farà primer un _sbrk_ amb un paràmetre negatiu per veure que s'ha tractat correctament el cas en el que l'usuari allibera més memòria de la que ha reservat (cap byte en aquest cas). Posteriorment es fan proves reservant i alliberant espais i comprovant que els punters retornin el valor que toca. 
 
+**8. Test final:** Aquest test pretén posar-ho tot a prova. És idèntic al TEST 1 però hi ha altres processos a la CPU, els FPS estan limitats a 70 i les matrius es reserven i s'alliberen de la memòria dinàmica a cada iteració.
+
  
