@@ -232,6 +232,10 @@ int sys_get_key(char *c) {
 
 int sys_put_screen(char * s){		
 	if (s == NULL) return 0;
+	if (spf_PID != current()->PID) {
+		print_screen(s);
+		return 1;	
+	}
 	if(spf_sem > 0 || spf_ticks == -1){	
 		 print_screen(s);	
 		--spf_sem;

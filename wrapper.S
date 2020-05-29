@@ -377,7 +377,6 @@ return_sbrk:
 	jne no_error_sbrk //salto a la resta de la rutina
 	//tracto l'error
 	movl $12, errno //ENOMEM
-	movl $-1, %eax
 no_error_sbrk:    //he d'execurtar sempre aixo en quaslevol cas per sortir de la rutina.  
 	popl %ebp
 	ret
