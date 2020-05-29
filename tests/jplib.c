@@ -184,6 +184,7 @@ void test_final() {
 	  put_screen((char *)scen);
 		del_scenario();
 	 	scen = (char **)get_scenario();
+		flush_screen((char (*)[80])scen);
 		init_scen((char (*)[80])scen);
 		((char (*)[80])scen)[x][y] = '@';
 		
@@ -277,12 +278,16 @@ int test_get_key(){
 }
 
 int test_fflush(){
+	char **neteja = (char **) get_scenario();
+	flush_screen((char (*)[80])neteja);
+	put_screen((char *)neteja);
+	del_scenario();		
 	char buff[] = "TEST 6: provant la crida a sistema fflush()";
 	write(1,buff,strlen(buff));
 	char buff2[] = "\nEscriu alguns caracters si us plau.\n";
 	write(1,buff2,strlen(buff2));
 	unsigned long t = gettime();
-	while(gettime() <= t+18*50);
+	while(gettime() <= t+18*90);
 	fflush();
 	char a;
 	get_key(&a);
@@ -300,9 +305,9 @@ int test_fflush(){
 int test_sbrk(){	
 	char buff[] = "TEST 7: provant la crida a sistema sbrk()\n";
 	write(1,buff,strlen(buff));
-	unsigned long a = (unsigned long)sbrk(-4);
-	if (a || (unsigned long)sbrk(0) != L_HEAP_START){	
-		char buff1[] = "TEST 6: FAIL\n";
+	unsigned long a = (unsigned long)sbrk(-4); // ha de retornar error: -1
+	if (a != -1 || (unsigned long)sbrk(0) != L_HEAP_START){	
+		char buff1[] = "TEST 7: FAIL\n";
 		write(1,buff1,strlen(buff1));
 		return 0;
 	}
@@ -341,6 +346,7 @@ void jp_all() {
 	failed -= test_fflush(); //6
 	failed -= test_sbrk(); //7
 	test_final(); // 8 unkown
+	--failed;
 
 
 
@@ -384,6 +390,7 @@ void jp_rank(int ini, int fin){
 			case 8:
 				test_final(); //  unkown
 				++unknown;
+				--failed;
 				break;
 
 		}

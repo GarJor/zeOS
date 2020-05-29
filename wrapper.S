@@ -373,11 +373,10 @@ return_sbrk:
 	popl %edx
 	popl %ecx
 	//comporovo que no hi hagi errors
-	cmpl $0, %eax
-	jge no_error_sbrk //salto a la resta de la rutina
+	cmpl $-1, %eax
+	jne no_error_sbrk //salto a la resta de la rutina
 	//tracto l'error
-	negl %eax
-	movl %eax, errno
+	movl $12, errno //ENOMEM
 	movl $-1, %eax
 no_error_sbrk:    //he d'execurtar sempre aixo en quaslevol cas per sortir de la rutina.  
 	popl %ebp
