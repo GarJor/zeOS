@@ -20,7 +20,7 @@ struct task_struct *list_head_to_task_struct(struct list_head *l)
 extern struct list_head blocked;
 extern int sys_put_screen(char *s);
 //int spf_quantum;   //es la variable que diu quants ticks han de passar entre cada put screen
-
+int spf_PID = 0;
 int quantum_ticks;
 int spf_ticks; //Per contar els segons (18 tics en cada segon).
 int spf_sem;   //variable que es decrementa segons els frames que s'han mostrat
@@ -119,7 +119,7 @@ void init_sched()
 	INIT_LIST_HEAD( &freequeue );
 	INIT_LIST_HEAD( &readyqueue );
 	INIT_LIST_HEAD( &priorityqueue );
-	quantum_ticks = 0;
+	quantum_ticks = -1;
 	spf_ticks = -1;
 	spf_sem = -1;
 	int i;
@@ -193,8 +193,8 @@ void schedule (void)
 void schedule_fps(void){
 	if (spf_ticks!=-1){
 		--spf_ticks;
-		if (spf_ticks <= 0){
-			spf_ticks = 18;
+		if (spf_ticks <= 0 && spf_PID == current()->PID){ // sino comprovem que estiguem en lespai dadresse que toca ens mengem un page fault
+			spf_ticks += 18; // no es = 18 perk hem de tenir en compte els ticks que passen quan spf_PID != current()->PID, per aixo el += 18
 			spf_sem = gfps;
 			if(spf_last_screen != NULL) sys_put_screen(spf_last_screen); 
 		}

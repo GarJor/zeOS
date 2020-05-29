@@ -7,6 +7,7 @@
 #define __LIBC_H__
 
 #include <stats.h>
+ 
 
 int write(int fd, char *buffer, int size);
 
@@ -36,7 +37,7 @@ void* sbrk (int increment);
 
 void perror(void);
 
-void* get_scenario();
+void *get_scenario();
 
 void del_scenario();  //borra l'ultim.
 

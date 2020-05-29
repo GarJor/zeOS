@@ -195,7 +195,7 @@ void perror (void) {
 }
 
 
-void* get_scenario(){
+void *get_scenario(){
 	return sbrk(25*80);
 }
 

@@ -1,12 +1,12 @@
 #include <libc.h>
 #include <mm.h>
 
-#define NTESTS 7 
+#define NTESTS 8 
 #define FPS 70
 #define CHILDS 7
 
 
-void flush_screen(char scen[25][80]) {
+void flush_screen(char scen[][80]) {
 	for(int i = 0; i < 25; ++i) {
 		for(int j = 0; j < 80; ++j) scen[i][j] = '\x00';
 	}
@@ -14,7 +14,7 @@ void flush_screen(char scen[25][80]) {
 }
 
 
-void init_scen(char scen[25][80]) {
+void init_scen(char scen[][80]) {
 	char txt[25] = "Mou-te amb les tecles vim";
 	for(int i = 0; i < 25; ++i) scen[3][3+i] = txt[i];
 	char	txt2[19] = "Prem 'q' per sortir";
@@ -144,6 +144,57 @@ int test_max_fps() {
 	write(1,buff,24);
 	return 1;
 }
+void test_final() {
+	fflush();
+	char buff[] = "\nTEST 8: provant tot plegat\n";
+	write(1,buff,strlen(buff));
+	set_fps(70);
+	char **scen = (char **)get_scenario();
+	flush_screen((char (*)[80])scen);
+	init_scen((char (*)[80])scen);
+	int x = 12;
+	int y = 40;
+	char inp = '\x00'; //0xb117ff 
+	((char (*)[80])scen)[x][y] = '@';
+	while(inp != 'q') {
+
+		get_key(&inp); //0xb11800
+		if (inp == 'k') { //0xb117ff
+			if(x > 1) {
+				--x;
+			}
+		}
+
+		if (inp == 'l') {
+			if(y < 78 ) {
+				++y;
+			}
+		}
+
+		if (inp == 'h') {
+			if(y > 1) {
+				--y;
+			}
+		}
+		if (inp == 'j') {
+			if(x < 23) {
+				++x;
+			}
+		}
+	  put_screen((char *)scen);
+		del_scenario();
+	 	scen = (char **)get_scenario();
+		flush_screen((char (*)[80])scen);
+		init_scen((char (*)[80])scen);
+		((char (*)[80])scen)[x][y] = '@';
+		
+	}
+	char buff1[] = "TEST 8: ? (Creus que va be?) \n";
+	write(1,buff1,strlen(buff1));
+	flush_screen((char (*)[80])scen);
+	put_screen((char *)scen);
+
+}
 
 void test_joc() {
 	fflush();
@@ -227,12 +278,16 @@ int test_get_key(){
 }
 
 int test_fflush(){
+	char **neteja = (char **) get_scenario();
+	flush_screen((char (*)[80])neteja);
+	put_screen((char *)neteja);
+	del_scenario();		
 	char buff[] = "TEST 6: provant la crida a sistema fflush()";
 	write(1,buff,strlen(buff));
 	char buff2[] = "\nEscriu alguns caracters si us plau.\n";
 	write(1,buff2,strlen(buff2));
 	unsigned long t = gettime();
-	while(gettime() <= t+18*50);
+	while(gettime() <= t+18*90);
 	fflush();
 	char a;
 	get_key(&a);
@@ -250,22 +305,23 @@ int test_fflush(){
 int test_sbrk(){	
 	char buff[] = "TEST 7: provant la crida a sistema sbrk()\n";
 	write(1,buff,strlen(buff));
-	unsigned long a = (unsigned long)sbrk(-4);
-	if (a || (unsigned long)sbrk(0) != L_HEAP_START){	
-		char buff1[] = "TEST 6: FAIL\n";
+	unsigned long a = (unsigned long)sbrk(-4); // ha de retornar error: -1
+	if (a != -1 || (unsigned long)sbrk(0) != L_HEAP_START){	
+		char buff1[] = "TEST 7: FAIL\n";
 		write(1,buff1,strlen(buff1));
 		return 0;
 	}
 	unsigned int brk = (unsigned long)sbrk(200);
 	a = (unsigned long)sbrk(0);
 	if (brk+200 != a){
-		char buff2[] = "TEST 7: FAIL1\n";
+		char buff2[] = "TEST 7: FAIL\n";
 		write(1,buff2,strlen(buff2));
 		return 0;
 	}
-	a = (unsigned long)sbrk(-2000);
+	sbrk(-2000);
+	a = (unsigned long)sbrk(0);
 	if (a != L_HEAP_START){	
-		char buff3[] = "TEST 7: FAIL2\n";
+		char buff3[] = "TEST 7: FAIL\n";
 		write(1,buff3,strlen(buff3));
 		return 0;
 	}
@@ -278,17 +334,19 @@ int test_sbrk(){
 void jp_all() {
 	int total = NTESTS;
 	int failed = total; 
-	int unknown = 1;
+	int unknown = 2;
 
 
-	test_joc(); // 0 unkown
+	test_joc(); // 1 unkown
 	--failed;
-	failed -= test_get_key(); // 1
-	failed -= test_max_fps();
-	failed -= test_fps(FPS, 0); // 3
-	failed -= test_fps(FPS, CHILDS); // 4
-	failed -= test_fflush(); //5
-	failed -= test_sbrk(); //6
+	failed -= test_get_key(); //2
+	failed -= test_max_fps();//3
+	failed -= test_fps(FPS, 0); // 4
+	failed -= test_fps(FPS, CHILDS); // 5
+	failed -= test_fflush(); //6
+	failed -= test_sbrk(); //7
+	test_final(); // 8 unkown
+	--failed;
 
 
 
@@ -329,9 +387,11 @@ void jp_rank(int ini, int fin){
 			case 7:
 				failed -= test_sbrk();
 				break;
-			//case 8:
-			//	failed -= test_fps(FPS, CHILDS);
-			//	break;
+			case 8:
+				test_final(); //  unkown
+				++unknown;
+				--failed;
+				break;
 
 		}
 
