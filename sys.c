@@ -159,7 +159,8 @@ void sys_exit()
 	struct task_struct *task = current();
 	page_table_entry *task_PT = get_PT(task);
 	int brk = (int) current()->brk;
-	int NUM_PAG_DATA_HEAP = NUM_PAG_DATA + (brk & 0x0fff)? PAG_HEAP(brk) : PAG_HEAP(brk) - 1; 
+	int heap =  (brk & 0x0fff)? PAG_HEAP(brk) + 1 : PAG_HEAP(brk); 
+	int NUM_PAG_DATA_HEAP = NUM_PAG_DATA + heap; 
 	for(int i =0; i < NUM_PAG_DATA_HEAP ; ++i)
 	{
 		free_frame(get_frame(task_PT,i+PAG_LOG_INIT_DATA));
@@ -302,6 +303,7 @@ void* sys_sbrk(int n){
 	int ini_pag;
 	page_table_entry *pt = get_PT(current());
 	unsigned long brk = (unsigned long) current()->brk;
+	unsigned long nou_brk = brk;
 	if (brk == L_HEAP_START && n < 0){     //No es pot permetre, no hi ha res reservat.
 		return NULL;  //uala que fem aqui?
 	}
@@ -325,7 +327,7 @@ void* sys_sbrk(int n){
 		for (i = 0; i < pags; i++){ 
     	set_ss_pag(pt, HEAP_FIRST_PAGE+PAG_HEAP(brk)+i+(!ini_pag), frames[i]);
     }
-		brk = brk + n;
+		nou_brk = brk + n;
 	} else if (n < 0) {   //toca borral
 		unsigned int dest = (brk+n < L_HEAP_START)? L_HEAP_START : brk+n;
 		ini_pag = inici_pag(dest);      //Estaré a inici de pàgina?
@@ -336,9 +338,9 @@ void* sys_sbrk(int n){
 		for (i = 0; i < pags; i++){ 
     	del_ss_pag(pt, HEAP_FIRST_PAGE+PAG_HEAP(dest)+i+(!ini_pag));
     }
-		brk = dest;
+		nou_brk = dest;
 	}
-	current()->brk= (void *) brk;
+	current()->brk= (void *) nou_brk;
 	return (void *) brk;
 }
 
